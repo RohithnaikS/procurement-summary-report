@@ -1,0 +1,810 @@
+[
+    {
+        "id": "1",
+        "description": "14 Days from Invoice date,Payable immediately"
+    },
+    {
+        "id": "2",
+        "description": "Within 14 days 2 % cash discount / within 30 days Due net"
+    },
+    {
+        "id": "3",
+        "description": "Within 14 days 3 % cash discount / within 20 days 2 % cash discount / within 30 days Due net"
+    },
+    {
+        "id": "4",
+        "description": "Payable immediately Due net / Baseline date on End of the month"
+    },
+    {
+        "id":"5",
+        "description":"Payable immediately Due net / Baseline date on 10 of next month"
+    },
+    {
+        "id":"6",
+        "description":"Before End of the month 4 % cash discount / Before 15 of the next month ;; 2 % cash discount / Before 15 in 2 months Due net"
+    },
+    {
+        "id":"7",
+        "description":"For incoming invoices until 15 of the month/Before 15 of the next month 2 % cash discount/Before End of the next month Due net/For incoming invoices until End of the month/Before End of the next month 2 % cash discount/Before 15 in 2 months Due net"
+    },
+    {
+        "id":"8",
+        "description":"For incoming invoices until 15 of the month/within 14 days 2 % cash discount/within 30 days 1.5 % cash discount/within 45 days Due net/Baseline date on 30 of the month/For incoming invoices until End of the month/Baseline date on 15 of next month"
+    },
+    {
+        "id":"9",
+        "description":"Payable in 3 partial amounts / 1 installment: 30.000 % with payment term 0001 / 2 installment: 40.000 % with payment term 0001 / 3 installment: 30.000 % with payment term 0001"
+    },
+    {
+        "id":"FTK1",
+        "description":"30 Days from Invoice date after UAC"
+    },
+    {
+        "id":"FTK2",
+        "description":"Factoring based PO - Immediately"
+    },
+    {
+        "id":"FTK3",
+        "description":"LC - Due immediately"
+    },
+    {
+        "id":"FTK4",
+        "description":"Add the Payment Term in the Header"
+    },
+    {
+        "id":"IC00",
+        "description":"Pay immediately"
+    },
+    {
+        "id":"V020",
+        "description":"30 (23) days from goods/service delivery date"
+    },
+    {
+        "id":"V021",
+        "description":"21 (14) days from goods/service delivery date"
+    },
+    {
+        "id":"V022",
+        "description":"14 (07) days from goods/service delivery date"
+    },
+    {
+        "id":"V023",
+        "description":"10 (03) days from goods/service delivery date"
+    },
+    {
+        "id":"V024",
+        "description":"7 (0) days from goods/service delivery date"
+    },
+    {
+        "id":"V025",
+        "description":"30 (23) days from invoice date"
+    },
+    {
+        "id":"V026",
+        "description":"21 (14) days from invoice date"
+    },
+    {
+        "id":"V027",
+        "description":"14 (07) days from invoice date"
+    },
+    {
+        "id":"V028",
+        "description":"10 (03) days from invoice date"
+    },
+    {
+        "id":"V029",
+        "description":"7 (0) days from invoice date"
+    },
+    {
+        "id":"V030",
+        "description":"14 Days from Invoice date after 100% on activation"
+    },
+    {
+        "id":"V031",
+        "description":"14 Days from Invoice date, Quarterly in advance"
+    },
+    {
+        "id":"V032",
+        "description":"14 Days from Invoice date, Anually in advance"
+    },
+    {
+        "id":"V033",
+        "description":"14 Days from Invoice date after 100% delivery"
+    },
+    {
+        "id":"V034",
+        "description":"14 Days from Inv.date,95% on Delivery,5% after 3 m"
+    },
+    {
+        "id":"V035",
+        "description":"70% on Deliy, 20% on UAT 10% after 3 mon UAT"
+    },
+    {
+        "id":"V036",
+        "description":"70% on Deliy, 20% on UAT 10% after 6 mon UAT"
+    },
+    {
+        "id":"V037",
+        "description":"70% on Deliy, 20% on UAT 10% after 12 mon UAT"
+    },
+    {
+        "id":"V038",
+        "description":"70% on UAT, 20% 3 mon UAT 10% 6 mon UAT"
+    },
+    {
+        "id":"V039",
+        "description":"70% on UAT, 20% 3 mon UAT 10% 12 mon UAT"
+    },
+    {
+        "id":"V040",
+        "description":"70% on UAT, 30% 1 month from UAT"
+    },
+    {
+    "id": "V041",
+    "description": "70% aft 60 days fro PAC,30% aft 6 mon fro PAC"
+    },
+    {
+        "id": "V042",
+        "description": "14 Days from Invoice date after 100% Completion"
+    },
+    {
+        "id": "V043",
+        "description": "14 Inv date 95% on com, 5% reten for 03 mon In.Pay"
+    },
+    {
+        "id": "V044",
+        "description": "14 Inv date 95% on com, 5% reten for 06 mon In.Pay"
+    },
+    {
+        "id": "V045",
+        "description": "14 Inv date 95% on com, 5% reten for 12 mon In.Pay"
+    },
+    {
+        "id": "V046",
+        "description": "14 D Inv.date 90% aft 30 d UAC,10% aft 3 mon UAC I"
+    },
+    {
+        "id": "V047",
+        "description": "14 D Inv.date 90% aft 30 d UAC,10% aft 6 mon UAC I"
+    },
+    {
+        "id": "V048",
+        "description": "14 D Inv.date 90% aft 30 dUAC,10% aft 12 mon UAC I"
+    },
+    {
+        "id": "V049",
+        "description": "10 % in advance after mobilization 50% Interim pay"
+    },
+    {
+        "id": "V050",
+        "description": "95% LC on expiry of 30 days PAC, 05 retn 3 months"
+    },
+    {
+        "id": "V051",
+        "description": "95% LC on expiry of 30 days UAC, 05 retn 3 months"
+    },
+    {
+        "id": "V052",
+        "description": "100% by way of LC at sight"
+    },
+    {
+        "id": "V053",
+        "description": "100 % in Advance"
+    },
+    {
+        "id": "V100",
+        "description": "70% on Delivery"
+    },
+    {
+        "id": "V101",
+        "description": "20% on UAT"
+    },
+    {
+        "id": "V102",
+        "description": "100% on UAT"
+    },
+    {
+        "id": "V103",
+        "description": "95% on Delivery"
+    },
+    {
+        "id": "V104",
+        "description": "5% after 3 months"
+    },
+    {
+        "id": "V105",
+        "description": "10% after 6 months from UAT"
+    },
+    {
+        "id": "V106",
+        "description": "10% after 12 months from UAT"
+    },
+    {
+        "id": "V107",
+        "description": "70% on UAT"
+    },
+    {
+        "id": "V108",
+        "description": "20% 3 mon from UAT"
+    },
+    {
+        "id": "V109",
+        "description": "10% 6 mon from UAT"
+    },
+    {
+        "id": "V110",
+        "description": "10% 12 mon from UAT"
+    },
+    {
+        "id": "V111",
+        "description": "10% after 3 months from UAT"
+    },
+    {
+        "id": "V112",
+        "description": "30% 1 mon from UAT"
+    },
+    {
+        "id": "V113",
+        "description": "70% aft 60 days fro PAC"
+    },
+    {
+        "id": "V114",
+        "description": "30% aft 6 mon fro PAC"
+    },
+    {
+        "id": "V115",
+        "description": "95% on Completion"
+    },
+    {
+        "id": "V116",
+        "description": "5% Retention for 3 months from UAC"
+    },
+    {
+        "id": "V117",
+        "description": "5% Retention for 6 months from UAC"
+    },
+    {
+        "id": "V118",
+        "description": "5% Retention for 12 months from UAC"
+    },
+    {
+        "id": "V119",
+        "description": "90% after 30 days from UAC"
+    },
+    {
+        "id": "V120",
+        "description": "10% after 3 months from UAC"
+    },
+    {
+        "id": "V121",
+        "description": "10% after 6 months from UAC"
+    },
+    {
+        "id": "V122",
+        "description": "10% after 12 months from UAC"
+    },
+    {
+        "id": "V123",
+        "description": "10 % in advance after mobilization"
+    },
+    {
+        "id": "V124",
+        "description": "50 % interim payment after compl 75 % of the job"
+    },
+    {
+        "id": "V125",
+        "description": "30 % after 30days from issuance of UAC"
+    },
+    {
+        "id": "V126",
+        "description": "10% retention for a period of 06 months after UAC"
+    },
+    {
+        "id": "V127",
+        "description": "95% by way of LC on expiry of 30 days from PAC"
+    },
+    {
+        "id": "V128",
+        "description": "05% retention on expiry of 03 months from PAC"
+    },
+    {
+        "id": "V129",
+        "description": "95% by way of LC on expiry of 30 days from UAC"
+    },
+    {
+        "id": "V130",
+        "description": "05% retention on expiry of 03 months from UAC"
+    },
+    {
+        "id": "V131",
+        "description": "75% in advance"
+    },
+    {
+        "id": "V132",
+        "description": "50% in advance"
+    },
+    {
+        "id": "V133",
+        "description": "25% in advance"
+    },
+    {
+        "id": "V134",
+        "description": "Balance on completion"
+    },
+    {
+        "id": "V135",
+        "description": "Installment payments"
+    },
+    {
+        "id": "V136",
+        "description": "Due immediately"
+    },
+    {
+        "id": "V137",
+        "description": "60 Days from Invoice date after good/service delivery"
+    },
+    {
+        "id": "V138",
+        "description": "45 Days from Invoice date after good/service delivery"
+    },
+    {
+        "id": "V139",
+        "description": "90 Days from Invoice date after good/service delivery"
+    },
+    {
+        "id": "V140",
+        "description": "180 Days from Invoice date after good & service delivery"
+    },
+    {
+        "id": "V141",
+        "description": "270 Days from Invoice date after good & service delivery"
+    },
+    {
+        "id": "V142",
+        "description": "365 Days from Invoice date after good & service delivery"
+    },
+    {
+        "id": "V143",
+        "description": "45 days from invoice date"
+    },
+    {
+        "id": "V144",
+        "description": "60 days from invoice date"
+    },
+    {
+        "id": "V145",
+        "description": "90 days from invoice date"
+    },
+    {
+        "id": "V146",
+        "description": "180 days from invoice date"
+    },
+    {
+        "id": "V147",
+        "description": "270 days from invoice date"
+    },
+    {
+        "id": "V148",
+        "description": "365 days from invoice date"
+    },
+    {
+        "id": "V149",
+        "description": "30 Days from Invoice date after 100% on activation"
+    },
+    {
+        "id": "V150",
+        "description": "45 Days from Invoice date after 100% on activation"
+    },
+    {
+        "id": "V151",
+        "description": "60 Days from Invoice date after 100% on activation"
+    },
+    {
+        "id": "V152",
+        "description": "90 Days from Invoice date after 100% on activation"
+    },
+    {
+        "id": "V153",
+        "description": "180 Days from Invoice date after 100% on activation"
+    },
+    {
+        "id": "V154",
+        "description": "270 Days from Invoice date after 100% on activation"
+    },
+    {
+        "id": "V155",
+        "description": "365 Days from Invoice date after 100% on activation"
+    },
+    {
+        "id": "V156",
+        "description": "30 Days Inv. date,95% on Delivery, 5% after 3 mon"
+    },
+    {
+        "id": "V157",
+        "description": "45 Days Inv. date,95% on Delivery, 5% after 3 mon"
+    },
+    {
+        "id": "V158",
+        "description": "60 Days Inv. date,95% on Delivery, 5% after 3 mon"
+    },
+    {
+        "id": "V159",
+        "description": "90 Days Inv. date,95% on Delivery, 5% after 3 mon"
+    },
+    {
+        "id": "V160",
+        "description": "180 Days Inv. date,95% on Delivery, 5% after 3 mon"
+    },
+    {
+        "id": "V161",
+        "description": "270 Days Inv. date,95% on Delivery, 5% after 3 mon"
+    },
+    {
+        "id": "V162",
+        "description": "365 Days Inv. date,95% on Delivery, 5% after 3 mon"
+    },
+    {
+        "id": "V163",
+        "description": "30 Days from Invoice date after 100% Completion"
+    },
+    {
+        "id": "V164",
+        "description": "45 Days from Invoice date after 100% Completion"
+    },
+    {
+        "id": "V165",
+        "description": "60 Days from Invoice date after 100% Completion"
+    },
+    {
+        "id": "V166",
+        "description": "90 Days from Invoice date after 100% Completion"
+    },
+    {
+        "id": "V167",
+        "description": "180 Days from Invoice date after 100% Completion"
+    },
+    {
+        "id": "V168",
+        "description": "365 Days from Invoice date after 100% Completion"
+    },
+    {
+        "id": "V169",
+        "description": "30 Inv date 95% on com, 5% reten for 03 mon In.Pay"
+    },
+    {
+        "id": "V170",
+        "description": "45 Inv date 95% on com, 5% reten for 03 mon In.Pay"
+    },
+    {
+        "id": "V171",
+        "description": "60 Inv date 95% on com, 5% reten for 03 mon In.Pay"
+    },
+    {
+        "id": "V172",
+        "description": "90 Inv date 95% on com, 5% reten for 03 mon In.Pay"
+    },
+    {
+        "id": "V173",
+        "description": "180 Inv date 95% on com, 5% reten for 03 mon In.Pay"
+    },
+    {
+        "id": "V174",
+        "description": "270 Inv date 95% on com, 5% reten for 03 mon In.Pay"
+    },
+    {
+        "id": "V175",
+        "description": "365 Inv date 95% on com, 5% reten for 03 mon In.Pay"
+    },
+    {
+        "id": "V176",
+        "description": "30 Inv date 95% on com, 5% reten for 06 mon In.Pay"
+    },
+    {
+        "id": "V177",
+        "description": "45 Inv date 95% on com, 5% reten for 06 mon In.Pay"
+    },
+    {
+        "id": "V178",
+        "description": "60 Inv date 95% on com, 5% reten for 06 mon In.Pay"
+    },
+    {
+        "id": "V179",
+        "description": "90 Inv date 95% on com, 5% reten for 06 mon In.Pay"
+    },
+    {
+        "id": "V180",
+        "description": "180 Inv date 95% on com, 5% reten for 06 mon In.Pa"
+    },
+    {
+        "id": "V181",
+        "description": "270 Inv date 95% on com, 5% reten for 06 mon In.Pa"
+    },
+    {
+        "id": "V182",
+        "description": "365 Inv date 95% on com, 5% reten for 06 mon In.Pa"
+    },
+    {
+        "id": "V183",
+        "description": "30 Inv date 95% on com, 5% reten for 12 mon In.Pa"
+    },
+    {
+        "id": "V184",
+        "description": "45 Inv date 95% on com, 5% reten for 12 mon In.Pa"
+    },
+    {
+        "id": "V185",
+        "description": "60 Inv date 95% on com, 5% reten for 12 mon In.Pa"
+    },
+    {
+        "id": "V186",
+        "description": "90 Inv date 95% on com, 5% reten for 12 mon In.Pa"
+    },
+    {
+        "id": "V187",
+        "description": "180 Inv date 95% on com, 5% reten for 12 mon In.Pa"
+    },
+    {
+        "id": "V188",
+        "description": "270 Inv date 95% on com, 5% reten for 12 mon In.Pa"
+    },
+    {
+        "id": "V189",
+        "description": "365 Inv date 95% on com, 5% reten for 12 mon In.Pa"
+    },
+    {
+        "id": "V190",
+        "description": "14 D Inv. date 20% On Scope /Mobi,60% UAT,20% Depl"
+    },
+    {
+        "id": "V191",
+        "description": "30 D Inv. date 20% On Scope /Mobi,60% UAT,20% Depl"
+    },
+    {
+        "id": "V192",
+        "description": "45 D Inv. date 20% On Scope /Mobi,60% UAT,20% Depl"
+    },
+    {
+        "id": "V193",
+        "description": "60 D Inv. date 20% On Scope /Mobi,60% UAT,20% Depl"
+    },
+    {
+        "id": "V194",
+        "description": "90 D Inv. date 20% On Scope /Mobi,60% UAT,20% Depl"
+    },
+    {
+        "id": "V195",
+        "description": "180 D Inv. date 20% On Scope /Mobi,60% UAT,20% Dep"
+    },
+    {
+        "id": "V196",
+        "description": "270 D Inv. date 20% On Scope /Mobi,60% UAT,20% Dep"
+    },
+    {
+        "id": "V197",
+        "description": "365 D Inv. date 20% On Scope /Mobi,60% UAT,20% Dep"
+    },
+    {
+        "id": "V198",
+        "description": "14 Days from invoice date,Bi-Annual in Advance"
+    },
+    {
+        "id": "V199",
+        "description": "14 Days from invoice date,Bi-Annual in Advance"
+    },
+    {
+        "id": "V200",
+        "description": "14 Days from invoice date,Quarterly in Arrears"
+    },
+    {
+        "id": "V201",
+        "description": "30 D Inv.date 90% af 30 d UAC,10% aft 3 mon UAC IP"
+    },
+    {
+        "id": "V202",
+        "description": "45 D Inv.date 90% af 30 d UAC,10% aft 3 mon UAC IP"
+    },
+    {
+        "id": "V203",
+        "description": "60 D Inv.date 90% af 30 d UAC,10% aft 3 mon UAC IP"
+    },
+    {
+        "id": "V204",
+        "description": "90 D Inv.date 90% af 30 d UAC,10% aft 3 mon UAC IP"
+    },
+    {
+        "id": "V205",
+        "description": "180 D Inv.date 90% af 30 d UAC,10% aft 3 mon UAC IP"
+    },
+    {
+        "id": "V206",
+        "description": "270 D Inv.date 90% af 30 d UAC,10% aft 3 mon UAC IP"
+    },
+    {
+        "id": "V207",
+        "description": "365 D Inv.date 90% af 30 d UAC,10% aft 3 mon UAC IP"
+    },
+    {
+        "id": "V208",
+        "description": "30 D Inv.date 90% af 30 d UAC,10% aft 6 mon UAC IP"
+    },
+    {
+        "id": "V209",
+        "description": "45 D Inv.date 90% af 30 d UAC,10% aft 6 mon UAC IP"
+    },
+    {
+        "id": "V210",
+        "description": "60 D Inv.date 90% af 30 d UAC,10% aft 6 mon UAC IP"
+    },
+    {
+        "id": "V211",
+        "description": "90 D Inv.date 90% af 30 d UAC,10% aft 6 mon UAC I"
+    },
+    {
+        "id": "V212",
+        "description": "180 D Inv.date 90% af 30 d UAC,10% aft 6 mn UAC IP"
+    },
+    {
+        "id": "V213",
+        "description": "270 D Inv.date 90% af 30 d UAC,10% aft 6 mn UAC IP"
+    },
+    {
+        "id": "V214",
+        "description": "365 D Inv.date 90% af 30 d UAC,10% aft 6 mn UAC IP"
+    },
+    {
+        "id": "V215",
+        "description": "30 D Inv.date 90% af 30 d UAC,10% aft 12 mn UAC IP"
+    },
+    {
+        "id": "V216",
+        "description": "45 D Inv.date 90% af 30 d UAC,10% aft 12 mn UAC IP"
+    },
+    {
+        "id": "V217",
+        "description": "60 D Inv.date 90% af 30 d UAC,10% aft 12 mn UAC IP"
+    },
+    {
+        "id": "V218",
+        "description": "90 D Inv.date 90% af 30 d UAC,10% aft 12 mn UAC IP"
+    },
+    {
+        "id": "V219",
+        "description": "180 D Inv.date 90% af 30 d UAC,10% aft 12 mn UAC IP"
+    },
+    {
+        "id": "V220",
+        "description": "270 D Inv.date 90% af 30 d UAC,10% aft 12 mn UAC IP"
+    },
+    {
+        "id": "V221",
+        "description": "365 D Inv.date 90% af 30 d UAC,10% aft 12 mn UAC IP"
+    },
+    {
+        "id": "V222",
+        "description": "FTK HUA Service-DAP/DBN-50%-14,30%-30,20%-UAC"
+    },
+    {
+        "id": "V223",
+        "description": "FTK HUA Supply - DAP - 100% - 180 days"
+    },
+    {
+        "id": "V224",
+        "description": "FTK HUA Supply - DBN - 100%- 30 Days"
+    },
+    {
+        "id": "V225",
+        "description": "FTK HUA Supply - DBN - 100%- 180 Days"
+    },
+    {
+        "id": "V226",
+        "description": "FTK Ericsson Service - 50% - 14 , 50%-30"
+    },
+    {
+        "id": "V227",
+        "description": "FTK Ericsson Supply -100% - 180 Days"
+    },
+    {
+        "id": "V228",
+        "description": "30 Days from Invoice date after 100% delivery"
+    },
+    {
+        "id": "V229",
+        "description": "45 Days from Invoice date after 100% delivery"
+    },
+    {
+        "id": "V230",
+        "description": "60 Days from Invoice date after 100% delivery"
+    },
+    {
+        "id": "V231",
+        "description": "90 Days from Invoice date after 100% delivery"
+    },
+    {
+        "id": "V232",
+        "description": "180 Days from Invoice date after 100% delivery"
+    },
+    {
+        "id": "V233",
+        "description": "270 Days from Invoice date after 100% delivery"
+    },
+    {
+        "id": "V234",
+        "description": "365 Days from Invoice date after 100% delivery"
+    },
+    {
+        "id": "V235",
+        "description": "Quarterly in arrears.Cre Per-30days frm Inv Submission"
+    },
+    {
+        "id": "V236",
+        "description": "45 Day Inv.Date_Subc-50%_Deli & 50%_Imple/100%-UAT"
+    },
+    {
+        "id": "V237",
+        "description": "100% PO val to be pd exp of 20 day frm Date of UAC"
+    },
+    {
+        "id": "V238",
+        "description": "Monthly in Arrears (within 30 days from the Inv)"
+    },
+    {
+        "id": "V239",
+        "description": "AMC Q1-Q4 -25% PMT within 14 D frm full completion"
+    },
+    {
+        "id": "V240",
+        "description": "30% adv upon PI- 7-10D and 70% upon del with 30 D"
+    },
+    {
+        "id": "V241",
+        "description": "10% beginning, 60% on UAT,30% Go-live, 30D credit"
+    },
+    {
+        "id": "V242",
+        "description": "Imp65%upon Inv,35%UAT(45D Cr),1-75 minApp mon in A"
+    },
+    {
+        "id": "V243",
+        "description": "30D from Inv,20% Proj,30% UAT,40% Comp,10% End Sup"
+    },
+    {
+        "id": "V244",
+        "description": "Lic,Mange,Prof100%on INV(30DC),Intigr:100%UAT(30D)"
+    },
+    {
+        "id": "V245",
+        "description": "(45 frm INV)-Mil.Stn 20% 20% 20% 40% PROJ val Comp"
+    },
+    {
+        "id": "V246",
+        "description": "Quarterly in advance: within 30 days"
+    },
+    {
+        "id": "V247",
+        "description": "30D frm INV 20% Res Mobliztn 40%Del1,20%Del2 20% D"
+    },
+    {
+        "id": "V248",
+        "description": "100% upon UAC issuance (Credit Period: 30 Days)"
+    },
+    {
+        "id": "V249",
+        "description": "70% upon delivery,30% upon signing of UAT (CR:30 D"
+    },
+    {
+        "id": "V250",
+        "description": "100% of PO value on exp of 60 days CR from UAC"
+    },
+    {
+        "id": "V251",
+        "description": "25%-Project Kickoff ,75% at UAT"
+    },
+    {
+        "id": "V252",
+        "description": "10%Rsmoblzation,30%SOW/FRS,50%UAT,10%goLive_30D"
+    },
+    {
+        "id": "V253",
+        "description": "15 (10) days from invoice date"
+    }
+]

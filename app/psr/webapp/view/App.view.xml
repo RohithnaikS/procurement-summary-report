@@ -1,0 +1,13 @@
+<mvc:View controllerName="psr.psr.controller.App"
+    displayBlock="true"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+    <App id="idApp">
+        <pages>
+            <!-- Left empty on purpose: the router (see manifest.json
+                 sap.ui5.routing.config.controlId = "idApp" /
+                 controlAggregation = "pages") inserts the Dashboard or
+                 main view here at runtime, based on the current route. -->
+        </pages>
+    </App>
+</mvc:View>

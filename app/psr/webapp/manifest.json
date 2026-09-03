@@ -1,0 +1,133 @@
+{
+  "_version": "1.86.0",
+  "sap.app": {
+    "id": "psr.psr",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.30.0",
+      "toolsId": "4d0aa463-79ca-4c02-9a27-35e1c3064091"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/procurement/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": false,
+    "dependencies": {
+      "minUI5Version": "1.151.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "psr.psr.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+  "config": {
+    "routerClass": "sap.m.routing.Router",
+    "controlAggregation": "pages",
+    "controlId": "idApp",
+    "transition": "slide",
+    "type": "View",
+    "viewType": "XML",
+    "path": "psr.psr.view",
+    "bypassed": {
+      "target": "dashboard"
+    },
+    "async": true,
+    "viewPath": "psr.psr.view"
+  },
+  "routes": [
+    {
+      "name": "dashboard",
+      "pattern": ":?query:",
+      "target": [
+        "Targetdashboard"
+      ]
+    },
+    {
+      "name": "Routemain",
+      "pattern": "main/:ID:",
+      "target": [
+        "Targetmain"
+      ]
+    }
+  ],
+  "targets": {
+    "Targetdashboard": {
+      "id": "Dashboard",
+      "name": "Dashboad",
+      "viewLevel": 1
+    },
+    "Targetmain": {
+      "id": "main",
+      "name": "main",
+      "viewLevel": 2
+    }
+  }
+},
+    "rootView": {
+      "viewName": "psr.psr.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  }
+}

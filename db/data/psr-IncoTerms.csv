@@ -1,0 +1,17 @@
+code,name,descr
+CFR,Costs and freight,Costs and freight
+CIF,Costs insurance & freight,Costs insurance & freight
+CIP, Carriage and insurance paid to, Carriage and insurance paid to
+CPT, Carriage paid to, Carriage paid to
+DAF, Delivered at frontier, Delivered at frontier
+DDP, Delivered Duty Paid, Delivered Duty Paid
+DDU, Delivered Duty Unpaid, Delivered Duty Unpaid
+DEQ, Delivered ex quay (duty paid), Delivered ex quay (duty paid)
+DES, Delivered ex ship, Delivered ex ship
+DPU,Delivered at Place Unloaded, Delivered at Place Unloaded
+EXW,Ex Works,Ex Works
+FAS,Free Alongside Ship,Free Alongside Ship
+FCA,Free Carrier,Free Carrier
+FH,Free house,Free house
+FOB,Free on board,Free on board
+INA,Incoterm Not Applicable,Incoterm Not Applicable

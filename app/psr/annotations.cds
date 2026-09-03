@@ -1,0 +1,1 @@
+using ProcurementService as service from '../../srv/procurement-service';

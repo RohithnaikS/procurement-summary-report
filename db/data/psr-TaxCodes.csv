@@ -1,0 +1,5 @@
+code,rate,name,descr
+SRL0,0.00,Zero Rated,Zero-rated tax treatment
+SRL18,18.00,VAT 18%,Standard Value Added Tax rate
+SRLEX,0.00,Exempt,Exempt from Value Added Tax
+SRLNR,0.00,Non Taxable,Not subject to Value Added Tax

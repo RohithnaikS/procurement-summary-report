@@ -1,0 +1,59 @@
+{
+  "name": "psr",
+  "version": "1.0.0",
+  "description": "Welcome to your new CAP project.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch-psr": "cds watch --open psr.psr/index.html?sap-ui-xx-viewCache=false --livereload false"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RohithnaikS/procurement-summary-report.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/RohithnaikS/procurement-summary-report/issues"
+  },
+  "homepage": "https://github.com/RohithnaikS/procurement-summary-report#readme",
+  "dependencies": {
+    "@cap-js/sqlite": "^2.4.0",
+    "@sap/cds": "^9.9.1"
+  },
+  "workspaces": [
+    "app/*"
+  ],
+  "devDependencies": {
+    "cds-plugin-ui5": "^0.17.0"
+  },
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "url": "db.sqlite"
+        }
+      },
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "alex.johnson@flowmate.demo": {
+            "password": "FlowmateUser1!"
+          },
+          "priya.sharma@flowmate.demo": {
+            "password": "FlowmateUser1!"
+          },
+          "daniel.kim@flowmate.demo": {
+            "password": "FlowmateUser1!"
+          },
+          "maya.perera@flowmate.demo": {
+            "password": "FlowmateUser1!"
+          }
+        }
+      }
+    }
+  }
+}

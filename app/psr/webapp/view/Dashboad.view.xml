@@ -1,0 +1,88 @@
+<mvc:View
+    controllerName="psr.psr.controller.Dashboard"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Page
+        id="idDashboardPage"
+        class="psrPage"
+        showHeader="false">
+
+        <content>
+            <VBox class="psrDashboardContainer">
+
+                <!-- =========================================================
+                     Nav Bar: "Procurement Summary Report" (left) /
+                     Requester email (right)
+                     ========================================================= -->
+                <Bar class="psrHeaderBar">
+                    <contentLeft>
+                        <Title text="Procurement Summary Report" level="H2" class="psrHeaderTitle"/>
+                    </contentLeft>
+                    <contentRight>
+                        <HBox alignItems="Center" class="psrRequesterBadge">
+                            <Label text="Requester" class="psrRequesterLabel"/>
+                            <Text text="{dashboard>/requesterEmail}" class="psrRequesterValue"/>
+                        </HBox>
+                    </contentRight>
+                </Bar>
+
+                <!-- =========================================================
+                     Action Row: "Fill Procurement Summary Report" button
+                     ========================================================= -->
+                <Toolbar class="psrDashboardActionToolbar">
+                    <ToolbarSpacer/>
+                    <Button
+                        id="idFillPSRButton"
+                        text="Fill Procurement Summary Report"
+                        type="Emphasized"
+                        icon="sap-icon://add-document"
+                        press=".onFillProcurementSummaryReport"
+                        class="psrSubmitButton" />
+                </Toolbar>
+
+                
+                <Table
+                    id="idPSRTable"
+                    class="psrDashboardTable"
+                    items="{dashboard>/requests}"
+                    growing="true"
+                    growingThreshold="20"
+                    autoPopinMode="false"
+                    fixedLayout="true"
+                    noDataText="No procurement summary reports found."
+                    alternateRowColors="true">
+
+                    <headerToolbar>
+                        <Toolbar>
+                            <Title text="Submitted Requests" level="H3"/>
+                            <ToolbarSpacer/>
+                            <SearchField class="psrDashboardSearch" width="22rem" liveChange=".onTableSearch" placeholder="Search requests"/>
+                        </Toolbar>
+                    </headerToolbar>
+
+                    <columns>
+                        <Column width="11rem"><Text text="Request ID"/></Column>
+                        <Column width="15rem"><Text text="Requester"/></Column>
+                        <Column><Text text="Procurement Name"/></Column>
+                    </columns>
+
+                    <items>
+                        <ColumnListItem type="Navigation" press=".onRequestPress">
+                            <cells>
+                                <Text text="{dashboard>ID}"/>
+                                <Text text="{dashboard>requesterName}"/>
+                                <Text text="{dashboard>procurementName}"/>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+
+                </Table>
+
+            </VBox>
+        </content>
+
+    </Page>
+
+</mvc:View>

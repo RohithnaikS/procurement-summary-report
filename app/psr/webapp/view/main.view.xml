@@ -1,0 +1,365 @@
+<mvc:View
+    controllerName="psr.psr.controller.main"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Page
+        id="idMainPage"
+        class="psrPage">
+
+        <customHeader>
+            <Bar class="psrHeaderBar">
+                <contentLeft>
+                    <Title text="{i18n>title}" level="H2" class="psrHeaderTitle"/>
+                </contentLeft>
+                <contentRight>
+                    <HBox alignItems="Center" class="psrRequesterBadge">
+                        <Label text="Requester" class="psrRequesterLabel"/>
+                        <Text text="{form>/requesterName}" class="psrRequesterValue"/>
+                    </HBox>
+                </contentRight>
+            </Bar>
+        </customHeader>
+
+        <content>
+            <VBox class="psrFormContainer">
+
+                <VBox class="psrReportHero">
+                    <Title text="{i18n>title}" level="H1" class="psrReportHeroTitle"/>
+                    <Text text="Complete the details below to prepare the procurement summary for approval." class="psrReportHeroSubtitle"/>
+                </VBox>
+
+                <Label text="{i18n>procurementname}" labelFor="idNameProcurementTextArea" required="true"/>
+                <TextArea id="idNameProcurementTextArea" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the procurement name" value="{form>/name}"/>
+
+                <Label text="{i18n>procurementobjective}" labelFor="idObjectiveTextArea" required="true"/>
+                <TextArea id="idObjectiveTextArea" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the procurement objective" value="{form>/objective}"/>
+
+                <!-- Procurement Type: now a radio button group -->
+                <Label text="{i18n>procurementtype}" required="true"/>
+                <RadioButtonGroup id="idTypeRadioButtonGroup" columns="2" selectedIndex="-1" select=".onTypeSelect" class="psrRadioGroup">
+                    <buttons>
+                        <RadioButton text="Direct (Single Quotation)"/>
+                        <RadioButton text="Non-Direct (Multiple Quotations)"/>
+                    </buttons>
+                </RadioButtonGroup>
+
+                <Label text="{i18n>recommendation}" labelFor="idRecommendationInput" required="true"/>
+                <TextArea id="idRecommendationInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the recommendation" value="{form>/recommendation}"/>
+
+                <Label text="{i18n>currency}" labelFor="idCurrencyComboBox" required="true"/>
+                <ComboBox id="idCurrencyComboBox" placeholder="Search Currency" selectedKey="{form>/currency}">
+                    <items>
+                        <core:Item key="LKR" text="LKR"/>
+                        <core:Item key="USD" text="USD"/>
+                        <core:Item key="EUR" text="EUR"/>
+                        <core:Item key="GBP" text="GBP"/>
+                        <core:Item key="MYR" text="MYR"/>
+                        <core:Item key="CNY" text="CNY"/>
+                        <core:Item key="INR" text="INR"/>
+                        <core:Item key="AUD" text="AUD"/>
+                        <core:Item key="SGD" text="SGD"/>
+                    </items>
+                </ComboBox>
+
+                <Label text="{i18n>procurementvaluewithouttax}" labelFor="idValueWithoutTaxInput" required="true" />
+                <TextArea id="idValueWithoutTaxInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the procurement value without tax" value="{form>/valueWithoutTax}"/>
+
+                <Label text="{i18n>procurementvaluewithtax}" labelFor="idValueWithTaxInput" required="true"/>
+                <TextArea id="idValueWithTaxInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the procurement value with tax" value="{form>/valueWithTax}"/>
+
+                <!-- TIC Approval: now a radio button group -->
+                <Label text="{i18n>ticapproval}"/>
+                <RadioButtonGroup id="idTICApprovalRadioButtonGroup" columns="2" selectedIndex="-1" select=".onTicApprovalSelect" class="psrRadioGroup">
+                    <buttons>
+                        <RadioButton text="Yes"/>
+                        <RadioButton text="No"/>
+                    </buttons>
+                </RadioButtonGroup>
+
+                <Label text="{i18n>technicalevaluation}" labelFor="idTechnicalEvaluationInput" required="true"/>
+                <TextArea id="idTechnicalEvaluationInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the technical evaluation summary and recommendation" value="{form>/technicalEvaluation}"/>
+
+                <Label text="{i18n>commercialevaluation}" labelFor="idCommercialEvaluationInput" required="true"/>
+                <TextArea id="idCommercialEvaluationInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the commercial evaluation methodology or summary" value="{form>/commercialEvaluation}"/>
+
+                <!-- Number of Vendors: now a radio button group -->
+                <Label text="{i18n>numberofvendors}" required="true"/>
+                <RadioButtonGroup id="idNumberOfVendorsRadioButtonGroup" columns="2" selectedIndex="-1" select=".onNumberOfVendorsSelect" class="psrRadioGroup">
+                    <buttons>
+                        <RadioButton text="Single"/>
+                        <RadioButton text="Multiple"/>
+                    </buttons>
+                </RadioButtonGroup>
+
+                <Label text="{i18n>selectedvendorsname}" required="true"/>
+
+<Button
+    text="Add Vendor"
+    icon="sap-icon://add"
+    press=".onAddFirstVendor"
+    class="sapUiSmallMarginBottom" />
+
+<VBox
+    id="idVendorsContainerVBox"
+    items="{vendors>/vendors}">
+
+    <items>
+        <HBox
+            alignItems="Center"
+            class="sapUiSmallMarginBottom">
+
+            <!-- Vendor Name / Value Help -->
+            <Input
+            
+    value="{vendors>vendorName}"
+    placeholder="Select Vendor"
+    showValueHelp="true"
+    valueHelpOnly="true"
+    valueHelpRequest=".onVendorValueHelp"
+    editable="true"
+    width="320px"
+    class="sapUiTinyMarginEnd" />
+
+            <!-- Vendor Code - auto populated -->
+            <Input
+                value="{vendors>vendorCode}"
+                placeholder="Vendor Code"
+                editable="false"
+                width="200px"
+                class="sapUiTinyMarginEnd" />
+
+            <Button
+                icon="sap-icon://sys-add"
+                type="Transparent"
+                visible="{vendors>showAdd}"
+                press=".onAddVendor" />
+
+            <Button
+                icon="sap-icon://sys-minus"
+                type="Transparent"
+                visible="{vendors>showRemove}"
+                press=".onRemoveVendor" />
+
+        </HBox>
+    </items>
+
+</VBox>
+
+                <Label text="{i18n>paymentterms}" labelFor="idPaymentTermsComboBox" required="true"/>
+                <ComboBox id="idPaymentTermsComboBox" placeholder="Search Payment Terms" selectedKey="{form>/paymentTerms}" items="{paymentTerms>/}" selectionChange=".onPaymentTermsChange">
+                    <core:Item key="{paymentTerms>id}" text="{paymentTerms>id}"/>
+                </ComboBox>
+
+                <Label text="{i18n>paymenttermsdescription}" labelFor="idPaymentTermsDescriptionInput" required="true"/>
+                <TextArea id="idPaymentTermsDescriptionInput" rows="1" growing="true" growingMaxLines="10" width="100%" value="{form>/paymentTermsDescription}" editable="false"/>
+
+                <Label text="{i18n>paymentmilestone}" labelFor="idPaymentMilestoneInput" />
+                <TextArea id="idPaymentMilestoneInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the payment milestone/other payment clauses" value="{form>/paymentMilestone}"/>
+
+                <Label text="{i18n>paymentmode}" labelFor="idPaymentModeComboBox" required="true"/>
+                <ComboBox id="idPaymentModeComboBox" placeholder="Select Payment Mode" selectedKey="{form>/paymentMode}">
+                    <core:Item key="da" text="DA - DOCUMENT AGAINST ACCEPTANCE"/>
+                    <core:Item key="dp" text="DP - DOCUMENT AGAINST PAYMENT"/>
+                    <core:Item key="lc" text="LC - LETTER OF CREDIT"/>
+                    <core:Item key="lp" text="LP - LOCAL PAYMENT"/>
+                    <core:Item key="oa" text="OA - OPEN ACCOUNT"/>
+                    <core:Item key="tt" text="TT - TELEGRAPHIC TRANSFER"/>
+                </ComboBox>
+
+                <!-- Price Validity: now From/To date pickers -->
+                <Label text="{i18n>pricevalidity}"/>
+                <HBox alignItems="Center">
+                    <DatePicker
+                        id="idPriceValidityFromDatePicker"
+                        placeholder="From Date"
+                        valueFormat="yyyy-MM-dd"
+                        displayFormat="dd/MM/yyyy"
+                        value="{form>/priceValidityFrom}"
+                        class="sapUiTinyMarginEnd" />
+                    <DatePicker
+                        id="idPriceValidityToDatePicker"
+                        placeholder="To Date"
+                        valueFormat="yyyy-MM-dd"
+                        displayFormat="dd/MM/yyyy"
+                        value="{form>/priceValidityTo}" />
+                </HBox>
+
+                <Label text="{i18n>performancebond}" labelFor="idPerformanceBondInput"/>
+                <TextArea id="idPerformanceBondInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the performance bond" value="{form>/performanceBond}"/>
+
+                <Label text="{i18n>warranty}" labelFor="idWarrantyInput"/>
+                <TextArea id="idWarrantyInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the warranty" value="{form>/warranty}"/>
+
+                <Label text="{i18n>termsofdelivery}" labelFor="idTermsOfDeliveryInput"/>
+                <TextArea id="idTermsOfDeliveryInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the terms of delivery" value="{form>/termsOfDelivery}"/>
+
+                <Label text="{i18n>liquidateddamages}" labelFor="idLiquidatedDamagesInput"/>
+                <TextArea id="idLiquidatedDamagesInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the liquidated damages" value="{form>/liquidatedDamages}"/>
+
+                <Label text="{i18n>applicabletaxes}" labelFor="idApplicableTaxesInput" required="true"/>
+                <ComboBox id="idTaxCodesComboBox" placeholder="Select Tax Code" selectedKey="{form>/applicableTaxes}" items="{path: '/TaxCodes'}">
+                    <core:Item key="{code}" text="{code} - {rate}%" />
+                </ComboBox>
+
+                <Label text="{i18n>expensetype}" labelFor="idExpenseTypeInput" required="true"/>
+                <ComboBox id="idExpenseTypesComboBox" placeholder="Select Expense Type" selectedKey="{form>/expenseType}">
+                    <core:Item key="im" text="Capex - IM" />
+                    <core:Item key="fm" text="Capex - FM" />
+                    <core:Item key="op" text="OPEX" />
+                </ComboBox>
+
+                <Label text="Business process flags (Select one)" class="sapUiSmallMarginBottom" />
+                <RadioButtonGroup id="idBusinessProcessFlagsRadioButtonGroup" columns="3" selectedIndex="-1" select=".onBusinessProcessFlagSelect" class="psrRadioGroup">
+                    <buttons>
+                        <RadioButton text="FOC PO" />
+                        <RadioButton text="DBS Flag" />
+                        <RadioButton text="Marketing Flag" />
+                    </buttons>
+                </RadioButtonGroup>
+
+                <Label text="{i18n>purchasingorganization}" labelFor="idPurchasingOrganizationInput" required="true"/>
+                <ComboBox id="idPurchasingOrganizationsComboBox" placeholder="Select Purchasing Organization" selectedKey="{form>/purchasingOrganization}" items="{/PurchasingOrganizations}">
+                    <core:Item key="{code}" text="{name}"/>
+                </ComboBox>
+
+                <Label text="{i18n>purchasinggroup}" labelFor="idPurchasingGroupsComboBox" required="true"/>
+                <ComboBox id="idPurchasingGroupsComboBox" selectedKey="{form>/purchasingGroup_ID}" placeholder="Select Purchasing Group" items="{ path: '/PurchasingGroups'}">
+                    <core:Item key="{code}" text="{code} - {name}" />
+                </ComboBox>
+
+                <Label text="{i18n>incoterms}" labelFor="idIncoTermsComboBox" required="true"/>
+                <ComboBox id="idIncoTermsComboBox" placeholder="Select Incoterm" selectedKey="{form>/incoterms}" items="{/IncoTerms}">
+                    <core:Item key="{code}" text="{code} {name}" />
+                </ComboBox>
+
+                <Label text="{i18n>incolocation}" labelFor="idIncoLocationInput" />
+                <TextArea id="idIncoLocationInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the Incoterm Location" value="{form>/incoLocation}"/>
+
+                <Label text="{i18n>otherconditions}" labelFor="idOtherConditionsInput" />
+                <TextArea id="idOtherconditionsInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the Other conditions" value="{form>/otherconditions}"/>
+
+                <Label text="{i18n>remarks}" labelFor="idRequesterRemarksInput" />
+                <TextArea id="idRequesterRemarksInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the remarks" value="{form>/requesterRemarks}"/>
+
+                <Label text="{i18n>attachments}" class="sapUiSmallMarginTop" />
+                <Button text="Add Attachment" icon="sap-icon://attachment" press=".onAddFirstAttachment" class="sapUiSmallMarginBottom" />
+                <VBox id="idAttachmentsContainerVBox" items="{path: 'attachments>/attachments'}">
+                    <items>
+                        <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                            <Text text="{attachments>slotNumber}" width="30px" />
+                            <u:FileUploader xmlns:u="sap.ui.unified" buttonOnly="false" width="350px" change=".onFileChange" class="sapUiSmallMarginEnd" />
+                            <Button icon="sap-icon://sys-add" type="Transparent" visible="{attachments>showAdd}" press=".onAddAttachment" />
+                            <Button icon="sap-icon://sys-minus" type="Transparent" visible="{attachments>showRemove}" press=".onRemoveAttachment" />
+                        </HBox>
+                    </items>
+                </VBox>
+
+                <Label text="Approvers" required="true" />
+                <Button text="Add Approver" icon="sap-icon://add-employee" press=".onAddFirstApprover" class="sapUiSmallMarginBottom" />
+                <VBox id="idApproversContainerVBox" items="{approvers>/approvers}">
+                    <items>
+                        <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                            <ComboBox placeholder="Search and select approver" selectedKey="{approvers>approverID}" items="{approverList>/users}" selectionChange=".onApproverSelect" width="400px">
+                                <core:Item key="{approverList>id}" text="{approverList>name}" />
+                            </ComboBox>
+                            <Button icon="sap-icon://sys-add" type="Transparent" visible="{approvers>showAdd}" press=".onAddApprover" class="sapUiTinyMarginBegin" />
+                            <Button icon="sap-icon://sys-minus" type="Transparent" visible="{approvers>showRemove}" press=".onRemoveApprover" class="sapUiTinyMarginBegin" />
+                        </HBox>
+                    </items>
+                </VBox>
+
+                <Label text="{i18n>vendorriskasses}"/>
+                <Text
+                    text="Please fill in the details according to the supplier engagement with Dialog, and it is the responsibility of the relevant business unit to update the accurate information to proceed with the Vendor Risk Assessment."
+                    wrapping="true"
+                    class="sapUiSmallMarginBottom" />
+
+                <!-- Q1: 5-way radio button group -->
+                <Label
+                    text="Q1. For this procurement, what type of Dialog data does the supplier have access to?"
+                    required="true"
+                    class="sapUiSmallMarginTop" />
+                <RadioButtonGroup id="idDialogDataAccessRadioButtonGroup" columns="5" selectedIndex="-1" select=".onDialogDataAccessSelect" class="psrRadioGroup">
+                    <buttons>
+                        <RadioButton text="Restricted"/>
+                        <RadioButton text="Confidential"/>
+                        <RadioButton text="Internal"/>
+                        <RadioButton text="Public"/>
+                        <RadioButton text="No data access"/>
+                    </buttons>
+                </RadioButtonGroup>
+
+                <!-- Q2 -->
+                <Label
+                    text="Q2. For this procurement, does the supplier have access to PII (Personally Identifiable Information) of Dialog customers or employees?"
+                    required="true"
+                    class="sapUiSmallMarginTop" />
+                <RadioButtonGroup id="idPIIAccessRadioButtonGroup" columns="2" selectedIndex="-1" select=".onPIIAccessSelect" class="psrRadioGroup">
+                    <buttons>
+                        <RadioButton text="Yes"/>
+                        <RadioButton text="No"/>
+                    </buttons>
+                </RadioButtonGroup>
+
+                <!-- Q3 -->
+                <Label
+                    text="Q3. For this procurement, does the supplier have access to payment/card information?"
+                    required="true"
+                    class="sapUiSmallMarginTop" />
+                <RadioButtonGroup id="idPaymentAccessRadioButtonGroup" columns="2" selectedIndex="-1" select=".onPaymentAccessSelect" class="psrRadioGroup">
+                    <buttons>
+                        <RadioButton text="Yes"/>
+                        <RadioButton text="No"/>
+                    </buttons>
+                </RadioButtonGroup>
+
+                <!-- Q4 -->
+                <Label
+                    text="Q4. For this procurement, does the supplier have physical/logical access to Dialog infrastructure?"
+                    required="true"
+                    class="sapUiSmallMarginTop" />
+                <RadioButtonGroup id="idInfrastructureAccessRadioButtonGroup" columns="2" selectedIndex="-1" select=".onInfrastructureAccessSelect" class="psrRadioGroup">
+                    <buttons>
+                        <RadioButton text="Yes"/>
+                        <RadioButton text="No"/>
+                    </buttons>
+                </RadioButtonGroup>
+
+                <!-- Q5 -->
+                <Label
+                    text="Q5. For this procurement, is Dialog information/systems hosted on supplier premises?"
+                    required="true"
+                    class="sapUiSmallMarginTop" />
+                <RadioButtonGroup id="idHostedOnSupplierPremisesRadioButtonGroup" columns="2" selectedIndex="-1" select=".onHostedOnSupplierPremisesSelect" class="psrRadioGroup">
+                    <buttons>
+                        <RadioButton text="Yes"/>
+                        <RadioButton text="No"/>
+                    </buttons>
+                </RadioButtonGroup>
+
+                <!-- Risk Rating: new field -->
+                <Label
+                    text="Risk Rating"
+                    required="true"
+                    class="sapUiSmallMarginTop" />
+                <RadioButtonGroup id="idRiskRatingRadioButtonGroup" columns="4" selectedIndex="-1" select=".onRiskRatingSelect" class="psrRadioGroup">
+                    <buttons>
+                        <RadioButton text="High"/>
+                        <RadioButton text="Medium"/>
+                        <RadioButton text="Low"/>
+                        <RadioButton text="Out of Scope"/>
+                    </buttons>
+                </RadioButtonGroup>
+
+                <HBox justifyContent="End" alignItems="Center" class="psrActionBar">
+                    <Button id="idSaveSubmitForApprovalButton" text="Save &amp; Submit for Approval" type="Emphasized" icon="sap-icon://paper-plane" press=".onSaveAndSubmit" class="psrSubmitButton" />
+                    <Button id="idCancelButton" text="Cancel" type="Transparent" icon="sap-icon://decline" press=".onCancel" class="sapUiSmallMarginBegin psrCancelButton" />
+                </HBox>
+            </VBox>
+        </content>
+
+    </Page>
+
+</mvc:View>
