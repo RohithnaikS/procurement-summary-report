@@ -63,17 +63,22 @@
                     </headerToolbar>
 
                     <columns>
-                        <Column width="11rem"><Text text="Request ID"/></Column>
+                        <Column width="24rem"><Text text="Request ID"/></Column>
                         <Column width="15rem"><Text text="Requester"/></Column>
                         <Column><Text text="Procurement Name"/></Column>
+                        <Column width="9rem" hAlign="Center"><Text text="Status"/></Column>
                     </columns>
 
                     <items>
                         <ColumnListItem type="Navigation" press=".onRequestPress">
                             <cells>
-                                <Text text="{dashboard>ID}"/>
+                                <Text text="{dashboard>requestNumber}" wrapping="false" class="psrRequestNumber"/>
                                 <Text text="{dashboard>requesterName}"/>
                                 <Text text="{dashboard>procurementName}"/>
+                                <ObjectStatus
+                                    text="{= ${dashboard>approvalStatus} === 'APPROVED' ? 'Approved' : (${dashboard>approvalStatus} === 'REJECTED' ? 'Rejected' : 'Pending') }"
+                                    state="{= ${dashboard>approvalStatus} === 'APPROVED' ? 'Success' : (${dashboard>approvalStatus} === 'REJECTED' ? 'Error' : 'Warning') }"
+                                    class="psrApprovalStatus"/>
                             </cells>
                         </ColumnListItem>
                     </items>

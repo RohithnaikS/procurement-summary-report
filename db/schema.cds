@@ -3,6 +3,13 @@ namespace psr;
 using { cuid, managed, sap.common.CodeList } from '@sap/cds/common';
 
 entity ProcurementRequests : cuid, managed {
+  // Keep the UUID as the technical key, but expose a readable reference in
+  // the UI and workflow e-mails (for example: PSR-550e8400-...).
+  requestNumber              : String(40) @cds.unique;
+  approvalStatus             : String(20) default 'Draft';
+  approvalDecisionAt         : DateTime;
+  approvalDecisionBy         : String(255);
+  virtual canCurrentUserDecide : Boolean;
   procurementName            : String(500);
   procurementObjective        : LargeString;
   procurementType             : Association to ProcurementTypes;
@@ -29,9 +36,9 @@ entity ProcurementRequests : cuid, managed {
   applicableTaxes                : Association to TaxCodes;
   expenseType                     : Association to ExpenseTypes;
   businessProcessFlag             : Association to BusinessProcessFlags;
-  purchasingOrganization           : Association to PurchasingOrganizations;
-  purchasingGroup                  : Association to PurchasingGroups;
-  incoTerms                        : Association to IncoTerms;
+  purchasingOrganization           : String(180);
+  purchasingGroup                  : String(180);
+  incoTerms                        : String(180);
   incoLocation                     : LargeString;
   otherConditions                  : LargeString;
   requesterRemarks                 : LargeString;
@@ -116,6 +123,7 @@ entity PaymentModes : CodeList {
 }
 
 
+@cds.autoexpose: false
 entity TaxCodes : CodeList {
   key code : String(10);
       rate : Decimal(5,2);
@@ -123,23 +131,30 @@ entity TaxCodes : CodeList {
       descr : String(500);
 }
 
+@cds.autoexpose: false
+entity PurchasingGroups : CodeList {
+  key code : String(40);
+    name : String(180);
+    descr : String(500);
+}
+
+@cds.autoexpose: false
+entity PurchasingOrganizations : CodeList {
+  key code : String(40);
+    name : String(180);
+    descr : String(500);
+}
+
+@cds.autoexpose: false
+entity Incoterms : CodeList {
+  key code : String(40);
+    name : String(180);
+    descr : String(500);
+}
+
+
 entity ExpenseTypes : CodeList {
   key code : String(20);
-}
-
-entity PurchasingOrganizations : CodeList {
-  key code : String(10);
-}
-
-
-entity PurchasingGroups : CodeList {
-  key code : String(10);
-      name : String(100);
-      descr : String(500);
-}
-
-entity IncoTerms : CodeList {
-  key code : String(3);
 }
 
 entity DataAccessTypes : CodeList {

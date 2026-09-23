@@ -6,7 +6,8 @@ sap.ui.define([
     "sap/m/SelectDialog",
     "sap/m/StandardListItem",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"
+    "sap/ui/model/FilterOperator",
+    "sap/ui/core/format/DateFormat"
 ], function (
     Controller,
     JSONModel,
@@ -15,7 +16,8 @@ sap.ui.define([
     SelectDialog,
     StandardListItem,
     Filter,
-    FilterOperator
+    FilterOperator,
+    DateFormat
 ) {
     "use strict";
 
@@ -78,6 +80,11 @@ sap.ui.define([
             var oFormModel = new JSONModel(oFormData);
 
             this.getView().setModel(oFormModel, "form");
+
+            this.getView().setModel(new JSONModel({
+                requestId: "",
+                canDecide: false
+            }), "review");
 
             this._loadLoggedInUser();
 
@@ -208,6 +215,11 @@ this.getView().setModel(oApproverListModel, "approverList");
             this.getView().getModel("vendors").setProperty("/vendors", []);
             this.getView().getModel("attachments").setProperty("/attachments", []);
             this.getView().getModel("approvers").setProperty("/approvers", []);
+            this.getView().getModel("review").setData({
+                requestId: "",
+                canDecide: false,
+                approvalFlow: { steps: [], summary: "" }
+            });
 
             [
                 "idTypeRadioButtonGroup",
@@ -241,7 +253,7 @@ this.getView().setModel(oApproverListModel, "approverList");
 
             oODataModel
                 .bindContext("/ProcurementRequests(" + sId + ")", null, {
-                    $expand: "vendorRiskAssessment"
+                    $expand: "vendorRiskAssessment,approvers($orderby=loaLevel)"
                 })
                 .requestObject()
                 .then(function (oRequest) {
@@ -264,6 +276,8 @@ this.getView().setModel(oApproverListModel, "approverList");
                     }
 
                     this.getView().getModel("form").setData({
+                        requestNumber: oRequest.requestNumber || ("PSR-" + oRequest.ID),
+                        approvalStatus: oRequest.approvalStatus || "Pending",
                         name: oRequest.procurementName || "",
                         objective: oRequest.procurementObjective || "",
                         type: oRequest.procurementType_code || "",
@@ -306,6 +320,11 @@ this.getView().setModel(oApproverListModel, "approverList");
                     });
 
                     this.getView().getModel("vendors").setProperty("/vendors", aVendors);
+                    this.getView().getModel("review").setData({
+                        requestId: oRequest.ID,
+                        canDecide: !!oRequest.canCurrentUserDecide,
+                        approvalFlow: this._buildApprovalFlow(oRequest)
+                    });
                     this._setReviewSelections(oRequest, oRisk);
                     this._setFormReadOnly(true);
                 }.bind(this))
@@ -318,6 +337,79 @@ this.getView().setModel(oApproverListModel, "approverList");
                 }.bind(this));
         },
 
+
+        // Turns the request's approvers into display steps for the read-only
+        // Approval Flow panel. Stored statuses mix 'Pending' with
+        // 'APPROVED' / 'REJECTED', so everything is compared upper-cased.
+        _buildApprovalFlow: function (oRequest) {
+
+            var sRequestStatus = String(oRequest.approvalStatus || "Pending").toUpperCase();
+            var oDateFormat = DateFormat.getDateTimeInstance({ style: "medium" });
+            var aApprovers = (oRequest.approvers || []).slice().sort(function (a, b) {
+                return (a.loaLevel || 0) - (b.loaLevel || 0);
+            });
+            var oCurrent = null;
+            var oRejected = null;
+
+            var aSteps = aApprovers.map(function (oApprover, index) {
+                var sStatus = String(oApprover.status || "Pending").toUpperCase();
+                var oStep = {
+                    level: oApprover.loaLevel || index + 1,
+                    name: oApprover.approverName || oApprover.approverEmail || "",
+                    email: oApprover.approverEmail || "",
+                    isCurrent: false,
+                    actionedAtText: oApprover.actionedAt ? oDateFormat.format(new Date(oApprover.actionedAt)) : ""
+                };
+
+                if (sStatus === "APPROVED") {
+                    oStep.statusText = "Approved";
+                    oStep.state = "Success";
+                    oStep.icon = "sap-icon://accept";
+                } else if (sStatus === "REJECTED") {
+                    oStep.statusText = "Rejected";
+                    oStep.state = "Error";
+                    oStep.icon = "sap-icon://decline";
+                    oRejected = oRejected || oStep;
+                } else if (sRequestStatus === "PENDING" && !oCurrent) {
+                    oStep.statusText = "Awaiting approval";
+                    oStep.state = "Warning";
+                    oStep.icon = "sap-icon://pending";
+                    oStep.isCurrent = true;
+                    oCurrent = oStep;
+                } else if (sRequestStatus !== "PENDING") {
+                    oStep.statusText = "Not required";
+                    oStep.state = "None";
+                    oStep.icon = "sap-icon://less";
+                } else {
+                    oStep.statusText = "Waiting";
+                    oStep.state = "None";
+                    oStep.icon = "sap-icon://time-entry-request";
+                }
+
+                oStep.statusKey = oStep.isCurrent ? "current" : oStep.statusText.toLowerCase().replace(/\s+/g, "-");
+                return oStep;
+            });
+
+            var sSummary;
+            if (!aSteps.length) {
+                sSummary = "No approvers assigned";
+            } else if (oRejected) {
+                sSummary = "Rejected by " + oRejected.name + " at level " + oRejected.level;
+            } else if (oCurrent) {
+                sSummary = "Step " + (aSteps.indexOf(oCurrent) + 1) + " of " + aSteps.length +
+                    " — awaiting approval from " + oCurrent.name;
+            } else if (sRequestStatus === "APPROVED") {
+                sSummary = "Approved by all " + aSteps.length + " approver" + (aSteps.length > 1 ? "s" : "");
+            } else {
+                sSummary = "";
+            }
+
+            return {
+                steps: aSteps,
+                currentApprover: oCurrent ? oCurrent.name : "",
+                summary: sSummary
+            };
+        },
 
         _setReviewSelections: function (oRequest, oRisk) {
 
@@ -351,7 +443,11 @@ this.getView().setModel(oApproverListModel, "approverList");
                     oControl.setEditable(!bReadOnly);
                 } else if (oControl.isA("sap.m.RadioButtonGroup")) {
                     oControl.setEnabled(!bReadOnly);
-                } else if (oControl.getId() !== this.byId("idCancelButton").getId()) {
+                } else if (
+                    oControl.getId() !== this.byId("idCancelButton").getId() &&
+                    oControl.getId() !== this.byId("idApproveButton").getId() &&
+                    oControl.getId() !== this.byId("idRejectButton").getId()
+                ) {
                     oControl.setEnabled(!bReadOnly);
                 }
             }.bind(this));
@@ -995,9 +1091,17 @@ onVendorSelect: function (oEvent) {
 
             var oFormData = this.getView().getModel("form").getData();
             var aVendors = this.getView().getModel("vendors").getProperty("/vendors") || [];
+            var aApprovers = this.getView().getModel("approvers").getProperty("/approvers") || [];
 
             if (!oFormData.name || !oFormData.objective) {
                 MessageBox.warning("Enter the procurement name and objective before saving.");
+                return;
+            }
+
+            if (!aApprovers.length || aApprovers.some(function (oApprover) {
+                return !oApprover.approverID || !oApprover.approverEmail;
+            })) {
+                MessageBox.warning("Add at least one valid approver before submitting.");
                 return;
             }
 
@@ -1038,6 +1142,15 @@ onVendorSelect: function (oEvent) {
                 incoLocation: oFormData.incoLocation,
                 otherConditions: oFormData.otherconditions,
                 requesterRemarks: oFormData.requesterRemarks,
+                approvers: aApprovers.map(function (oApprover, index) {
+                    return {
+                        loaLevel: index + 1,
+                        approverID: oApprover.approverID,
+                        approverName: oApprover.approverName,
+                        approverEmail: oApprover.approverEmail,
+                        status: "Pending"
+                    };
+                }),
                 vendorRiskAssessment: {
                     dataAccessType_code: oFormData.dialogDataAccess,
                     hasPIIAccess_code: oFormData.hasPIIAccess,
@@ -1050,33 +1163,105 @@ onVendorSelect: function (oEvent) {
 
             oButton.setEnabled(false);
 
-            var oNewRequest = oODataModel
-                .bindList("/ProcurementRequests")
-                .create(oPayload);
+           var oNewRequest = oODataModel
+    .bindList("/ProcurementRequests")
+    .create(oPayload);
 
-            oNewRequest.created()
-                .then(function () {
-                    MessageToast.show("Procurement summary report saved.");
-                    this.getOwnerComponent().getRouter().navTo("dashboard", {}, true);
-                }.bind(this))
-                .catch(function (oError) {
-                    var sServerMessage =
-                        oError.error && oError.error.message ||
-                        oError.message ||
-                        "Unknown server error";
+oNewRequest.created()
+    .then(function () {
 
-                    MessageBox.error(
-                        "The procurement summary report could not be saved. " + sServerMessage
-                    );
-                    console.error("Failed to save procurement request:", oError);
-                })
-                .finally(function () {
-                    oButton.setEnabled(true);
-                });
+        // Get the newly created ProcurementRequest
+        var oRequestData = oNewRequest.getObject();
+
+        var sRequestID = oRequestData.ID;
+
+        console.log(
+            "Created PSR Request ID:",
+            sRequestID
+        );
+
+        // Start BPA approval process
+        return this._startApprovalProcess(sRequestID);
+
+    }.bind(this))
+    .then(function () {
+
+        MessageToast.show(
+            "Procurement summary report submitted for approval."
+        );
+
+        this.getOwnerComponent()
+            .getRouter()
+            .navTo("dashboard", {}, true);
+
+    }.bind(this))
+    .catch(function (oError) {
+
+        console.error(
+            "Failed to save/start approval:",
+            oError
+        );
+
+        MessageBox.error(
+            "The procurement request could not be submitted."
+        );
+
+    }.bind(this))
+    .finally(function () {
+
+        oButton.setEnabled(true);
+
+    }.bind(this));
         },
 
         onCancel: function () {
             this.getOwnerComponent().getRouter().navTo("dashboard", {}, true);
+        },
+
+        onApprove: function () {
+            this._confirmDecision("APPROVED", "Approve this procurement request?");
+        },
+
+        onReject: function () {
+            this._confirmDecision("REJECTED", "Reject this procurement request?");
+        },
+
+        _confirmDecision: function (sDecision, sQuestion) {
+            MessageBox.confirm(sQuestion, {
+                actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
+                emphasizedAction: MessageBox.Action.OK,
+                onClose: function (sAction) {
+                    if (sAction === MessageBox.Action.OK) {
+                        this._submitDecision(sDecision);
+                    }
+                }.bind(this)
+            });
+        },
+
+        _submitDecision: function (sDecision) {
+            var oModel = this.getOwnerComponent().getModel();
+            var sRequestId = this.getView().getModel("review").getProperty("/requestId");
+            if (!oModel || !sRequestId) {
+                MessageBox.error("The request is no longer available for a decision.");
+                return;
+            }
+
+            this.getView().setBusy(true);
+            var oAction = oModel.bindContext("/decideApproval(...)");
+            oAction.setParameter("requestID", sRequestId);
+            oAction.setParameter("decision", sDecision);
+            oAction.execute()
+                .then(function () {
+                    MessageToast.show(sDecision === "APPROVED" ? "Request approved." : "Request rejected.");
+                    this._loadRequestForReview(sRequestId);
+                }.bind(this))
+                .catch(function (oError) {
+                    var sMessage = oError.error && oError.error.message || oError.message || "The decision could not be saved.";
+                    MessageBox.error(sMessage);
+                })
+                .finally(function () {
+                    this.getView().setBusy(false);
+                }.bind(this));
         },
 
 
@@ -1425,6 +1610,47 @@ _loadApprovers: function () {
                 oError
             );
 
+        });
+},
+
+_startApprovalProcess: function (sRequestID) {
+
+    var oModel = this.getOwnerComponent().getModel();
+
+    if (!oModel) {
+        return Promise.reject(
+            new Error("Procurement service is not available.")
+        );
+    }
+
+    var oAction = oModel.bindContext(
+        "/startApprovalProcess(...)"
+    );
+
+    oAction.setParameter(
+        "requestID",
+        sRequestID
+    );
+
+    return oAction.execute()
+        .then(function (oResult) {
+
+            console.log(
+                "BPA approval process started:",
+                oResult
+            );
+
+            return oResult;
+
+        })
+        .catch(function (oError) {
+
+            console.error(
+                "Failed to start BPA approval process:",
+                oError
+            );
+
+            throw oError;
         });
 },
 

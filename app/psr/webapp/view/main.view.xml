@@ -14,6 +14,10 @@
                     <Title text="{i18n>title}" level="H2" class="psrHeaderTitle"/>
                 </contentLeft>
                 <contentRight>
+                    <HBox id="idApprovalActions" visible="{review>/canDecide}" alignItems="Center">
+                        <Button id="idApproveButton" text="Approve" type="Accept" icon="sap-icon://accept" press=".onApprove" />
+                        <Button id="idRejectButton" text="Reject" type="Reject" icon="sap-icon://decline" press=".onReject" class="sapUiTinyMarginBegin" />
+                    </HBox>
                     <HBox alignItems="Center" class="psrRequesterBadge">
                         <Label text="Requester" class="psrRequesterLabel"/>
                         <Text text="{form>/requesterName}" class="psrRequesterValue"/>
@@ -28,6 +32,51 @@
                 <VBox class="psrReportHero">
                     <Title text="{i18n>title}" level="H1" class="psrReportHeroTitle"/>
                     <Text text="Complete the details below to prepare the procurement summary for approval." class="psrReportHeroSubtitle"/>
+                    <HBox class="psrRequestMeta" visible="{= !!${form>/requestNumber} }" wrap="Wrap">
+                        <VBox class="psrRequestMetaItem">
+                            <Text text="PSR ID" class="psrRequestMetaLabel"/>
+                            <Text text="{form>/requestNumber}" wrapping="false" class="psrRequestMetaValue"/>
+                        </VBox>
+                        <VBox class="psrRequestMetaItem">
+                            <Text text="Status" class="psrRequestMetaLabel"/>
+                            <ObjectStatus
+                                text="{= ${form>/approvalStatus} === 'APPROVED' ? 'Approved' : (${form>/approvalStatus} === 'REJECTED' ? 'Rejected' : 'Pending') }"
+                                state="{= ${form>/approvalStatus} === 'APPROVED' ? 'Success' : (${form>/approvalStatus} === 'REJECTED' ? 'Error' : 'Warning') }"
+                                class="psrApprovalStatus" />
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <VBox class="psrApprovalFlow" visible="{= !!${review>/requestId} }">
+                    <HBox class="psrApprovalFlowHeader" justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
+                        <VBox>
+                            <Title text="Approval Flow" level="H3" class="psrApprovalFlowTitle"/>
+                            <Text text="{review>/approvalFlow/summary}" class="psrApprovalFlowSummary"/>
+                        </VBox>
+                        <ObjectStatus
+                            text="{= ${form>/approvalStatus} === 'APPROVED' ? 'Approved' : (${form>/approvalStatus} === 'REJECTED' ? 'Rejected' : 'Pending') }"
+                            state="{= ${form>/approvalStatus} === 'APPROVED' ? 'Success' : (${form>/approvalStatus} === 'REJECTED' ? 'Error' : 'Warning') }"
+                            inverted="true"
+                            class="psrApprovalStatus" />
+                    </HBox>
+                    <HBox class="psrApprovalSteps" wrap="Wrap" items="{review>/approvalFlow/steps}"
+                        visible="{= ${review>/approvalFlow/steps}.length > 0 }">
+                        <VBox class="psrApprovalStep">
+                            <customData>
+                                <core:CustomData key="status" value="{review>statusKey}" writeToDom="true"/>
+                            </customData>
+                            <HBox alignItems="Center" class="psrApprovalStepTop">
+                                <core:Icon src="{review>icon}" class="psrApprovalStepIcon"/>
+                                <Text text="Level {review>level}" class="psrApprovalStepLevel"/>
+                            </HBox>
+                            <Text text="{review>name}" class="psrApprovalStepName"/>
+                            <Text text="{review>email}" class="psrApprovalStepEmail" visible="{= !!${review>email} &amp;&amp; ${review>email} !== ${review>name} }"/>
+                            <ObjectStatus text="{review>statusText}" state="{review>state}" class="psrApprovalStepStatus"/>
+                            <Text text="{review>actionedAtText}" class="psrApprovalStepDate" visible="{= !!${review>actionedAtText} }"/>
+                        </VBox>
+                    </HBox>
+                    <Text text="No approvers assigned" class="psrApprovalFlowEmpty"
+                        visible="{= !${review>/approvalFlow/steps} || ${review>/approvalFlow/steps}.length === 0 }"/>
                 </VBox>
 
                 <Label text="{i18n>procurementname}" labelFor="idNameProcurementTextArea" required="true"/>
@@ -200,7 +249,7 @@
 
                 <Label text="{i18n>applicabletaxes}" labelFor="idApplicableTaxesInput" required="true"/>
                 <ComboBox id="idTaxCodesComboBox" placeholder="Select Tax Code" selectedKey="{form>/applicableTaxes}" items="{path: '/TaxCodes'}">
-                    <core:Item key="{code}" text="{code} - {rate}%" />
+                    <core:Item key="{code}" text="{code} - {name}" />
                 </ComboBox>
 
                 <Label text="{i18n>expensetype}" labelFor="idExpenseTypeInput" required="true"/>
@@ -230,7 +279,7 @@
                 </ComboBox>
 
                 <Label text="{i18n>incoterms}" labelFor="idIncoTermsComboBox" required="true"/>
-                <ComboBox id="idIncoTermsComboBox" placeholder="Select Incoterm" selectedKey="{form>/incoterms}" items="{/IncoTerms}">
+                <ComboBox id="idIncoTermsComboBox" placeholder="Select Incoterm" selectedKey="{form>/incoterms}" items="{/Incoterms}">
                     <core:Item key="{code}" text="{code} {name}" />
                 </ComboBox>
 

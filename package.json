@@ -27,6 +27,7 @@
     "app/*"
   ],
   "devDependencies": {
+    "@sap/cds-dk": "^9",
     "cds-plugin-ui5": "^0.17.0"
   },
   "cds": {
@@ -52,6 +53,14 @@
           "maya.perera@flowmate.demo": {
             "password": "FlowmateUser1!"
           }
+        }
+      },
+      "CommonMasterDataService": {
+        "kind": "odata-v4",
+        "credentials": {
+          "url": "http://localhost:4020/odata/v4/flowmate-common",
+          "username": "ca.admin@flowmate.demo",
+            "password": "FlowmateCAAdmin1!"
         }
       }
     }

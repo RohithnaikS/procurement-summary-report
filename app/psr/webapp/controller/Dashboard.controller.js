@@ -179,7 +179,7 @@ sap.ui.define([
             var aFilters = [
                 new Filter("procurementName", FilterOperator.Contains, sQuery),
                 new Filter("requesterName", FilterOperator.Contains, sQuery),
-                new Filter("ID", FilterOperator.Contains, sQuery)
+                new Filter("requestNumber", FilterOperator.Contains, sQuery)
             ];
 
             oBinding.filter(new Filter({

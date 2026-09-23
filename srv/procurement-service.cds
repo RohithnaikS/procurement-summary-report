@@ -1,4 +1,5 @@
 using psr as psr from '../db/schema.cds';
+using { CommonMasterDataService as common } from './external/common-master';
 
 
 @requires: 'authenticated-user'
@@ -17,11 +18,31 @@ service ProcurementService {
   entity Attachments as projection on psr.Attachments;
   entity Approvers as projection on psr.Approvers;
   entity VendorRiskAssessments as projection on psr.VendorRiskAssessments;
-  entity TaxCodes as projection on psr.TaxCodes;
   entity BusinessProcessFlags as projection on psr.BusinessProcessFlags;
-  entity PurchasingOrganizations as projection on psr.PurchasingOrganizations;
-  entity PurchasingGroups as projection on psr.PurchasingGroups;
-  entity IncoTerms as projection on psr.IncoTerms;
+  entity TaxCodes as projection on common.ApplicableTaxes {
+    key taxCode as code,
+    taxDescription as name,
+    taxDescription as descr,
+    isActive
+  };
+  entity PurchasingGroups as projection on common.PurchasingGroups {
+    key purchasingGroupCode as code,
+    purchasingGroupName as name,
+    purchasingGroupName as descr,
+    isActive
+  };
+  entity PurchasingOrganizations as projection on common.PurchasingOrganizations {
+    key purchasingOrganizationCode as code,
+    purchasingOrganizationName as name,
+    purchasingOrganizationName as descr,
+    isActive
+  };
+  entity Incoterms as projection on common.Incoterms {
+    key incotermsCode as code,
+    incotermsDescription as name,
+    incotermsDescription as descr,
+    isActive
+  };
   
   // Unbound function the front end can call as soon as the app loads
   // (e.g. GET /odata/v4/procurement/getCurrentUser()) to populate the
@@ -37,10 +58,23 @@ service ProcurementService {
     department : String(100);
     userPrincipalName : String(255);
 };
-    function getVendors() returns many {
+  function getVendors() returns many {
     ID         : String(36);
     vendorCode : String(40);
     vendorName : String(180);
     vendorEmail: String(255);
   };
+
+  // Called by the read-only review screen. The service validates that the
+  // logged-in user is the next assigned approver before changing any status.
+
+
+  action startApprovalProcess(
+        requestID : UUID
+    ) returns String;
+
+  action decideApproval(
+    requestID : UUID,
+    decision  : String(20)
+  ) returns ProcurementRequests;
 }

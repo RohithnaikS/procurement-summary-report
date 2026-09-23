@@ -147,6 +147,30 @@
     margin-top: 0.35rem;
 }
 
+.psrRequestMeta {
+    gap: 1.75rem;
+    margin-top: 1.1rem;
+}
+
+.psrRequestMetaItem {
+    min-width: 13rem;
+}
+
+.psrRequestMetaLabel {
+    color: #cdeef0 !important;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.psrRequestMetaValue {
+    color: #fff !important;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
 
 /* =========================================================
    Form Labels
@@ -439,6 +463,30 @@
     white-space: normal;
 }
 
+/* A UUID-based PSR reference must remain readable as one value. */
+.psrDashboardTable .psrRequestNumber {
+    display: block;
+    white-space: nowrap !important;
+    color: var(--psr-navy);
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.psrApprovalStatus {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.16);
+    font-weight: 700;
+}
+
+.psrDashboardTable .psrApprovalStatus {
+    min-width: 5.5rem;
+    text-align: center;
+    background: #eef6f8;
+}
+
 .psrDashboardTable .sapMListTblRow:hover {
     background: var(--psr-mint);
 }
@@ -470,5 +518,143 @@
     .psrDashboardSearch {
         min-width: 0;
         width: 11rem !important;
+    }
+}
+
+
+/* =========================================================
+   Approval Flow (read-only review)
+   ========================================================= */
+
+.psrApprovalFlow {
+    margin: 0 0 1.5rem;
+    padding: 1rem 1.25rem;
+
+    background: var(--psr-surface);
+    border: 1px solid var(--psr-line);
+    border-left: 0.25rem solid var(--psr-teal);
+    border-radius: 0.6rem;
+}
+
+.psrApprovalFlowHeader {
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.psrApprovalFlowTitle {
+    color: var(--psr-navy);
+}
+
+.psrApprovalFlowSummary {
+    margin-top: 0.25rem;
+    color: #5b6f80;
+}
+
+.psrApprovalFlowEmpty {
+    color: #5b6f80;
+    font-style: italic;
+}
+
+.psrApprovalSteps {
+    gap: 1.5rem;
+}
+
+.psrApprovalStep {
+    position: relative;
+    min-width: 12rem;
+    flex: 1 1 12rem;
+    padding: 0.75rem 1rem;
+
+    background: #f6fbfc;
+    border: 1px solid var(--psr-line);
+    border-radius: 0.6rem;
+}
+
+/* connector between consecutive steps */
+.psrApprovalStep:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: -1.5rem;
+    width: 1.5rem;
+    height: 2px;
+    background: var(--psr-line);
+}
+
+.psrApprovalStep[data-status="current"] {
+    background: #fff8e6;
+    border: 2px solid #e9a100;
+    box-shadow: 0 2px 8px rgba(233, 161, 0, 0.2);
+}
+
+.psrApprovalStep[data-status="approved"] {
+    background: var(--psr-mint);
+    border-color: #9fd8c8;
+}
+
+.psrApprovalStep[data-status="rejected"] {
+    background: #fdecec;
+    border-color: #f0b4b4;
+}
+
+.psrApprovalStep[data-status="not-required"] {
+    opacity: 0.6;
+}
+
+.psrApprovalStepTop {
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.psrApprovalStepIcon {
+    font-size: 1.1rem;
+    color: #8396a6;
+}
+
+.psrApprovalStep[data-status="approved"] .psrApprovalStepIcon { color: #1e8a5a; }
+.psrApprovalStep[data-status="rejected"] .psrApprovalStepIcon { color: #c62828; }
+.psrApprovalStep[data-status="current"] .psrApprovalStepIcon { color: #e9a100; }
+
+.psrApprovalStepLevel {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #5b6f80;
+}
+
+.psrApprovalStepName {
+    font-weight: 600;
+    color: var(--psr-ink);
+}
+
+.psrApprovalStepEmail,
+.psrApprovalStepDate {
+    font-size: 0.8rem;
+    color: #5b6f80;
+}
+
+.psrApprovalStepStatus {
+    margin: 0.35rem 0 0.15rem;
+}
+
+@media (max-width: 600px) {
+    .psrApprovalSteps {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .psrApprovalStep {
+        min-width: 0;
+        flex-basis: auto;
+    }
+
+    .psrApprovalStep:not(:last-child)::after {
+        top: auto;
+        right: auto;
+        bottom: -1rem;
+        left: 1.5rem;
+        width: 2px;
+        height: 1rem;
     }
 }
