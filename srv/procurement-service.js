@@ -180,6 +180,19 @@ this.on('getVendors', async (req) => {
 });
 
 
+  // Readable business reference: PSR- + zero-padded 6-digit serial
+  // (PSR-000001, PSR-000002, ...). Legacy PSR-<uuid> numbers are longer and
+  // therefore excluded from the sequence.
+  const nextRequestNumber = async (req) => {
+    const last = await cds.tx(req).run(
+      SELECT.one.from(ProcurementRequests).columns('requestNumber')
+        .where`requestNumber like 'PSR-______' and length(requestNumber) = 10`
+        .orderBy('requestNumber desc')
+    )
+    const next = (last ? parseInt(last.requestNumber.slice(4), 10) || 0 : 0) + 1
+    return `PSR-${String(next).padStart(6, '0')}`
+  }
+
   this.before(['CREATE', 'UPDATE'], ProcurementRequests, async (req) => {
 
     // requester is derived from createdBy and must never be set directly
@@ -196,9 +209,9 @@ this.on('getVendors', async (req) => {
 
     if (req.event === 'CREATE') {
       // CAP normally generates cuid IDs later in the request lifecycle. Set
-      // it here so the business reference can reliably include that UUID.
+      // it here so later handlers (e.g. the BPA webhook) can rely on it.
       req.data.ID = req.data.ID || cds.utils.uuid()
-      req.data.requestNumber = req.data.requestNumber || `PSR-${req.data.ID}`
+      req.data.requestNumber = req.data.requestNumber || await nextRequestNumber(req)
       req.data.approvalStatus = req.data.approvalStatus || 'Pending'
     }
 

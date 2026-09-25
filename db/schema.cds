@@ -4,7 +4,7 @@ using { cuid, managed, sap.common.CodeList } from '@sap/cds/common';
 
 entity ProcurementRequests : cuid, managed {
   // Keep the UUID as the technical key, but expose a readable reference in
-  // the UI and workflow e-mails (for example: PSR-550e8400-...).
+  // the UI and workflow e-mails (for example: PSR-000001).
   requestNumber              : String(40) @cds.unique;
   approvalStatus             : String(20) default 'Draft';
   approvalDecisionAt         : DateTime;

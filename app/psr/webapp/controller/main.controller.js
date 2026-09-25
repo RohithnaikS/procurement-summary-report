@@ -276,7 +276,7 @@ this.getView().setModel(oApproverListModel, "approverList");
                     }
 
                     this.getView().getModel("form").setData({
-                        requestNumber: oRequest.requestNumber || ("PSR-" + oRequest.ID),
+                        requestNumber: oRequest.requestNumber || "",
                         approvalStatus: oRequest.approvalStatus || "Pending",
                         name: oRequest.procurementName || "",
                         objective: oRequest.procurementObjective || "",

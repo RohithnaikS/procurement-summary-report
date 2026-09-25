@@ -19,7 +19,7 @@ File or Folder | Purpose
 
 ## Approval mail integration (BPA)
 
-Each saved report receives a display reference such as `PSR-550e8400-e29b-41d4-a716-446655440000`; the underlying `ID` remains a UUID for OData navigation.
+Each saved report receives a display reference such as `PSR-000001` (sequential, zero-padded to 6 digits); the underlying `ID` remains a UUID for OData navigation.
 
 In the BPA approval e-mail, make **Click here** point to the deployed UI route below, replacing `<request-id>` with the report's technical `ID`:
 
@@ -37,7 +37,7 @@ To let BPA send the requester-decision e-mail, configure its endpoint as `BPA_DE
 {
   "event": "PSR_APPROVAL_DECIDED",
   "requestID": "<uuid>",
-  "requestNumber": "PSR-<uuid>",
+  "requestNumber": "PSR-000001",
   "procurementName": "...",
   "decision": "APPROVED or REJECTED",
   "requesterEmail": "...",
