@@ -80,7 +80,7 @@
                 </VBox>
 
                 <Label text="{i18n>procurementname}" labelFor="idNameProcurementTextArea" required="true"/>
-                <TextArea id="idNameProcurementTextArea" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the procurement name" value="{form>/name}"/>
+                <TextArea id="idNameProcurementTextArea" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the procurement name" value="{form>/name}" maxLength="500"/>
 
                 <Label text="{i18n>procurementobjective}" labelFor="idObjectiveTextArea" required="true"/>
                 <TextArea id="idObjectiveTextArea" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the procurement objective" value="{form>/objective}"/>
@@ -293,24 +293,42 @@
                 <TextArea id="idRequesterRemarksInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the remarks" value="{form>/requesterRemarks}"/>
 
                 <Label text="{i18n>attachments}" class="sapUiSmallMarginTop" />
-                <Button text="Add Attachment" icon="sap-icon://attachment" press=".onAddFirstAttachment" class="sapUiSmallMarginBottom" />
-                <VBox id="idAttachmentsContainerVBox" items="{path: 'attachments>/attachments'}">
+                <Button text="Add Attachment" icon="sap-icon://attachment" press=".onAddFirstAttachment" class="sapUiSmallMarginBottom" visible="{= !${review>/requestId} }" />
+                <VBox id="idAttachmentsContainerVBox" items="{path: 'attachments>/attachments'}" visible="{= !${review>/requestId} }">
                     <items>
                         <HBox alignItems="Center" class="sapUiSmallMarginBottom">
                             <Text text="{attachments>slotNumber}" width="30px" />
-                            <u:FileUploader xmlns:u="sap.ui.unified" buttonOnly="false" width="350px" change=".onFileChange" class="sapUiSmallMarginEnd" />
+                            <u:FileUploader xmlns:u="sap.ui.unified" buttonOnly="false" width="350px" change=".onFileChange" maximumFileSize="10" fileSizeExceed=".onFileSizeExceed" class="sapUiSmallMarginEnd" />
                             <Button icon="sap-icon://sys-add" type="Transparent" visible="{attachments>showAdd}" press=".onAddAttachment" />
                             <Button icon="sap-icon://sys-minus" type="Transparent" visible="{attachments>showRemove}" press=".onRemoveAttachment" />
                         </HBox>
                     </items>
                 </VBox>
 
-                <Label text="Approvers" required="true" />
-                <Button text="Add Approver" icon="sap-icon://add-employee" press=".onAddFirstApprover" class="sapUiSmallMarginBottom" />
-                <VBox id="idApproversContainerVBox" items="{approvers>/approvers}">
+                <!-- Review mode: saved attachments, open in a new tab or download -->
+                <VBox id="idReviewAttachmentsVBox" visible="{= !!${review>/requestId} }" class="sapUiSmallMarginBottom">
+                    <Text text="No attachments" visible="{= !${review>/attachments} || ${review>/attachments}.length === 0 }" />
+                    <VBox items="{path: 'review>/attachments', templateShareable: false}">
+                        <items>
+                            <HBox alignItems="Center" class="sapUiTinyMarginBottom">
+                                <core:Icon src="sap-icon://document" class="sapUiTinyMarginEnd" />
+                                <Link text="{review>fileName}" href="{review>url}" target="_blank" tooltip="Open in a new tab" />
+                                <Button icon="sap-icon://download" type="Transparent" tooltip="Download" press=".onDownloadAttachment" class="sapUiTinyMarginBegin">
+                                    <customData>
+                                        <core:CustomData key="keepEnabled" value="true" />
+                                    </customData>
+                                </Button>
+                            </HBox>
+                        </items>
+                    </VBox>
+                </VBox>
+
+                <Label text="Approvers" required="true" visible="{= !${review>/requestId} }" />
+                <Button text="Add Approver" icon="sap-icon://add-employee" press=".onAddFirstApprover" class="sapUiSmallMarginBottom" visible="{= !${review>/requestId} }" />
+                <VBox id="idApproversContainerVBox" items="{approvers>/approvers}" visible="{= !${review>/requestId} }">
                     <items>
                         <HBox alignItems="Center" class="sapUiSmallMarginBottom">
-                            <ComboBox placeholder="Search and select approver" selectedKey="{approvers>approverID}" items="{approverList>/users}" selectionChange=".onApproverSelect" width="400px">
+                            <ComboBox placeholder="Search and select approver" selectedKey="{approvers>approverID}" items="{path: 'approverList>/users', templateShareable: false}" selectionChange=".onApproverSelect" width="400px">
                                 <core:Item key="{approverList>id}" text="{approverList>name}" />
                             </ComboBox>
                             <Button icon="sap-icon://sys-add" type="Transparent" visible="{approvers>showAdd}" press=".onAddApprover" class="sapUiTinyMarginBegin" />

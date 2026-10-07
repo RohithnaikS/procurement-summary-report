@@ -52,6 +52,10 @@ module.exports = class ProcurementService extends cds.ApplicationService { async
 
 });
 
+  // Deep link for the BPA e-mails, e.g. PSR_APP_URL=https://<host>/psr/index.html
+  const reviewUrl = (requestID) =>
+    process.env.PSR_APP_URL ? `${process.env.PSR_APP_URL}#/main/${requestID}` : undefined
+
   // BPA can use this optional webhook to start its requester-notification
   // automation. Keeping the endpoint in an environment variable means no
   // BPA credentials or tenant URL are committed to the project.
@@ -271,7 +275,8 @@ this.on('getVendors', async (req) => {
         decision: requestStatus,
         requesterEmail: requester && requester.email,
         decidedBy: updatedRequest.approvalDecisionBy,
-        decidedAt: now
+        decidedAt: now,
+        reviewUrl: reviewUrl(updatedRequest.ID)
       })
     }
     return updatedRequest
@@ -295,7 +300,8 @@ this.on('getVendors', async (req) => {
       requestNumber: request.requestNumber || req.data.requestNumber,
       procurementName: request.procurementName || req.data.procurementName,
       requesterEmail: requester && requester.email,
-      approvers
+      approvers,
+      reviewUrl: reviewUrl(request.ID || req.data.ID)
     })
   })
 
@@ -333,8 +339,27 @@ this.on('getVendors', async (req) => {
     console.log('After READ ProcurementRequests', procurementRequests)
   })
 
-  this.before(['CREATE', 'UPDATE'], Attachments, async (req) => {
-    console.log('Before CREATE/UPDATE Attachments', req.data)
+  // Attachments are added by the requester while the request is pending;
+  // approvers (and everyone else) may only read/download them. Metadata
+  // created through the request's deep insert does not pass this handler.
+  this.before(['CREATE', 'UPDATE', 'DELETE'], Attachments, async (req) => {
+    const tx = cds.tx(req)
+    let requestID = req.data.request_ID
+    const attachmentID = req.data.ID || (req.params && req.params[0] && (req.params[0].ID || req.params[0]))
+    if (!requestID && attachmentID) {
+      const attachment = await tx.run(SELECT.one.from(Attachments).columns('request_ID').where({ ID: attachmentID }))
+      requestID = attachment && attachment.request_ID
+    }
+    const request = requestID && await tx.run(
+      SELECT.one.from(ProcurementRequests).columns('createdBy', 'approvalStatus').where({ ID: requestID })
+    )
+    if (!request) return req.reject(404, 'The procurement request for this attachment was not found.')
+    if (request.createdBy !== req.user.id) {
+      return req.reject(403, 'Only the requester can change attachments.')
+    }
+    if ((request.approvalStatus || 'Pending') !== 'Pending') {
+      return req.reject(403, 'Attachments cannot be changed after the approval decision.')
+    }
   })
   this.after('READ', Attachments, async (attachments, req) => {
     console.log('After READ Attachments', attachments)

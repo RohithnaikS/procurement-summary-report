@@ -68,7 +68,9 @@ entity Attachments : cuid {
   slotNumber   : Integer;
   fileName     : String(255);
   mimeType     : String(100);
-  content      : LargeBinary @Core.MediaType: mimeType;
+  content      : LargeBinary @Core.MediaType: mimeType
+                             @Core.ContentDisposition.Filename: fileName
+                             @Core.ContentDisposition.Type: 'inline';
   uploadedAt   : DateTime @cds.on.insert: $now;
 }
 

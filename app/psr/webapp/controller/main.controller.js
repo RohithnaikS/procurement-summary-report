@@ -218,6 +218,7 @@ this.getView().setModel(oApproverListModel, "approverList");
             this.getView().getModel("review").setData({
                 requestId: "",
                 canDecide: false,
+                attachments: [],
                 approvalFlow: { steps: [], summary: "" }
             });
 
@@ -253,7 +254,8 @@ this.getView().setModel(oApproverListModel, "approverList");
 
             oODataModel
                 .bindContext("/ProcurementRequests(" + sId + ")", null, {
-                    $expand: "vendorRiskAssessment,approvers($orderby=loaLevel)"
+                    $expand: "vendorRiskAssessment,approvers($orderby=loaLevel)," +
+                        "attachments($select=ID,slotNumber,fileName,mimeType;$orderby=slotNumber)"
                 })
                 .requestObject()
                 .then(function (oRequest) {
@@ -304,10 +306,10 @@ this.getView().setModel(oApproverListModel, "approverList");
                         applicableTaxes: oRequest.applicableTaxes_code || "",
                         expenseType: oRequest.expenseType_code || "",
                         businessProcessFlag: oRequest.businessProcessFlag_code || "",
-                        purchasingOrganization: oRequest.purchasingOrganization_code || "",
-                        purchasingGroup: oRequest.purchasingGroup_code || "",
-                        purchasingGroup_ID: oRequest.purchasingGroup_code || "",
-                        incoterms: oRequest.incoTerms_code || "",
+                        purchasingOrganization: oRequest.purchasingOrganization || "",
+                        purchasingGroup: oRequest.purchasingGroup || "",
+                        purchasingGroup_ID: oRequest.purchasingGroup || "",
+                        incoterms: oRequest.incoTerms || "",
                         incoLocation: oRequest.incoLocation || "",
                         otherconditions: oRequest.otherConditions || "",
                         requesterRemarks: oRequest.requesterRemarks || "",
@@ -320,9 +322,18 @@ this.getView().setModel(oApproverListModel, "approverList");
                     });
 
                     this.getView().getModel("vendors").setProperty("/vendors", aVendors);
+                    var sServiceUrl = oODataModel.getServiceUrl();
                     this.getView().getModel("review").setData({
                         requestId: oRequest.ID,
                         canDecide: !!oRequest.canCurrentUserDecide,
+                        attachments: (oRequest.attachments || []).map(function (oAttachment) {
+                            return {
+                                ID: oAttachment.ID,
+                                fileName: oAttachment.fileName || "Attachment " + oAttachment.slotNumber,
+                                mimeType: oAttachment.mimeType,
+                                url: sServiceUrl + "Attachments(" + oAttachment.ID + ")/content"
+                            };
+                        }),
                         approvalFlow: this._buildApprovalFlow(oRequest)
                     });
                     this._setReviewSelections(oRequest, oRisk);
@@ -415,7 +426,7 @@ this.getView().setModel(oApproverListModel, "approverList");
 
             var mSelections = {
                 idTypeRadioButtonGroup: ["direct", "non-direct"].indexOf(oRequest.procurementType_code),
-                idTICApprovalRadioButtonGroup: ["yes", "no"].indexOf(oRequest.ticApproval_code),
+                idTICApprovalRadioButtonGroup: ["YES", "NO"].indexOf(oRequest.ticApproval_code),
                 idNumberOfVendorsRadioButtonGroup: ["single", "multiple"].indexOf(oRequest.numberOfVendorsSelected_code),
                 idBusinessProcessFlagsRadioButtonGroup: ["FOC_PO", "DBS", "MARKETING"].indexOf(oRequest.businessProcessFlag_code),
                 idDialogDataAccessRadioButtonGroup: ["RESTRICTED", "CONFIDENTIAL", "INTERNAL", "PUBLIC", "NO_DATA"].indexOf(oRisk.dataAccessType_code),
@@ -444,6 +455,7 @@ this.getView().setModel(oApproverListModel, "approverList");
                 } else if (oControl.isA("sap.m.RadioButtonGroup")) {
                     oControl.setEnabled(!bReadOnly);
                 } else if (
+                    !oControl.data("keepEnabled") &&
                     oControl.getId() !== this.byId("idCancelButton").getId() &&
                     oControl.getId() !== this.byId("idApproveButton").getId() &&
                     oControl.getId() !== this.byId("idRejectButton").getId()
@@ -595,9 +607,9 @@ this.getView().setModel(oApproverListModel, "approverList");
             var sValue = "";
 
             if (iSelectedIndex === 0) {
-                sValue = "yes";
+                sValue = "YES";
             } else if (iSelectedIndex === 1) {
-                sValue = "no";
+                sValue = "NO";
             }
 
             oFormModel.setProperty("/ticApproval", sValue);
@@ -956,8 +968,7 @@ onVendorSelect: function (oEvent) {
         sPath + "/vendorCode",
         oVendor.vendorCode
     );
-
-    this._oVendorDialog.close();
+    // TableSelectDialog closes itself on confirm and has no close() method.
 },
 
 
@@ -1092,6 +1103,21 @@ onVendorSelect: function (oEvent) {
             var oFormData = this.getView().getModel("form").getData();
             var aVendors = this.getView().getModel("vendors").getProperty("/vendors") || [];
             var aApprovers = this.getView().getModel("approvers").getProperty("/approvers") || [];
+            // Only rows where a file was actually picked; the client-side ID
+            // lets the file content be uploaded to that row after the save.
+            var aAttachments = (this.getView().getModel("attachments").getProperty("/attachments") || [])
+                .filter(function (oAttachment) {
+                    return oAttachment.file;
+                })
+                .map(function (oAttachment, index) {
+                    return {
+                        ID: this._newUuid(),
+                        slotNumber: index + 1,
+                        fileName: oAttachment.file.name,
+                        mimeType: oAttachment.file.type || "application/octet-stream",
+                        file: oAttachment.file
+                    };
+                }.bind(this));
 
             if (!oFormData.name || !oFormData.objective) {
                 MessageBox.warning("Enter the procurement name and objective before saving.");
@@ -1105,14 +1131,29 @@ onVendorSelect: function (oEvent) {
                 return;
             }
 
+            // The value fields are free text but stored as Decimal(15,2):
+            // allow thousands separators, reject anything else up front.
+            var sValueWithoutTax = this._normalizeAmount(oFormData.valueWithoutTax);
+            var sValueWithTax = this._normalizeAmount(oFormData.valueWithTax);
+            if (sValueWithoutTax === null || sValueWithTax === null) {
+                MessageBox.warning("Enter the procurement values as numbers with at most 2 decimals (for example 125000.50).");
+                return;
+            }
+
+            if (oFormData.priceValidityFrom && oFormData.priceValidityTo &&
+                oFormData.priceValidityTo < oFormData.priceValidityFrom) {
+                MessageBox.warning("The price validity 'To' date cannot be before the 'From' date.");
+                return;
+            }
+
             var oPayload = this._removeEmptyValues({
                 procurementName: oFormData.name,
                 procurementObjective: oFormData.objective,
                 procurementType_code: oFormData.type,
                 recommendation: oFormData.recommendation,
                 currency_code: oFormData.currency,
-                procurementValueExclTax: oFormData.valueWithoutTax,
-                procurementValueInclTax: oFormData.valueWithTax,
+                procurementValueExclTax: sValueWithoutTax,
+                procurementValueInclTax: sValueWithTax,
                 ticApproval_code: oFormData.ticApproval,
                 technicalEvaluationSummary: oFormData.technicalEvaluation,
                 commercialEvaluationSummary: oFormData.commercialEvaluation,
@@ -1136,9 +1177,9 @@ onVendorSelect: function (oEvent) {
                 applicableTaxes_code: oFormData.applicableTaxes,
                 expenseType_code: oFormData.expenseType,
                 businessProcessFlag_code: oFormData.businessProcessFlag,
-                purchasingOrganization_code: oFormData.purchasingOrganization,
-                purchasingGroup_code: oFormData.purchasingGroup_ID,
-                incoTerms_code: oFormData.incoterms,
+                purchasingOrganization: oFormData.purchasingOrganization,
+                purchasingGroup: oFormData.purchasingGroup_ID,
+                incoTerms: oFormData.incoterms,
                 incoLocation: oFormData.incoLocation,
                 otherConditions: oFormData.otherconditions,
                 requesterRemarks: oFormData.requesterRemarks,
@@ -1149,6 +1190,14 @@ onVendorSelect: function (oEvent) {
                         approverName: oApprover.approverName,
                         approverEmail: oApprover.approverEmail,
                         status: "Pending"
+                    };
+                }),
+                attachments: aAttachments.map(function (oAttachment) {
+                    return {
+                        ID: oAttachment.ID,
+                        slotNumber: oAttachment.slotNumber,
+                        fileName: oAttachment.fileName,
+                        mimeType: oAttachment.mimeType
                     };
                 }),
                 vendorRiskAssessment: {
@@ -1163,11 +1212,35 @@ onVendorSelect: function (oEvent) {
 
             oButton.setEnabled(false);
 
-           var oNewRequest = oODataModel
-    .bindList("/ProcurementRequests")
-    .create(oPayload);
+           // A failed POST does not reject created(): the V4 model keeps the
+           // entity transient and silently retries it with the next batch.
+           // Send it in an own group and listen to createCompleted, which
+           // reports the POST outcome, so a failure can be shown and
+           // discarded instead of being re-sent on the next click.
+           // (isTransient() is not usable here: right after submitBatch it
+           // can still be true although the POST succeeded.)
+           var oListBinding = oODataModel
+    .bindList("/ProcurementRequests", null, [], [], { $$updateGroupId: "psrSubmit" });
+           var oCreateCompleted = new Promise(function (resolve) {
+               oListBinding.attachEventOnce("createCompleted", function (oCompletedEvent) {
+                   resolve(oCompletedEvent.getParameter("success"));
+               });
+           });
+           var oNewRequest = oListBinding.create(oPayload);
 
-oNewRequest.created()
+oODataModel.submitBatch("psrSubmit");
+
+oCreateCompleted
+    .then(function (bSuccess) {
+        if (!bSuccess) {
+            var sServerMessage = this._getLatestServerError();
+            // Still transient after a failed POST, so this only drops it
+            // locally; nothing is sent to the server.
+            oNewRequest.delete().catch(function () { /* discarded on purpose */ });
+            throw new Error(sServerMessage || "The procurement request could not be saved.");
+        }
+        return oNewRequest.created();
+    }.bind(this))
     .then(function () {
 
         // Get the newly created ProcurementRequest
@@ -1180,15 +1253,28 @@ oNewRequest.created()
             sRequestID
         );
 
-        // Start BPA approval process
-        return this._startApprovalProcess(sRequestID);
+        // Upload the file contents before approvers are notified, so the
+        // attachments are there when they open the request.
+        return this._uploadAttachmentContents(oODataModel.getServiceUrl(), aAttachments)
+            .then(function (aFailedFiles) {
+                return this._startApprovalProcess(sRequestID).then(function () {
+                    return aFailedFiles;
+                });
+            }.bind(this));
 
     }.bind(this))
-    .then(function () {
+    .then(function (aFailedFiles) {
 
-        MessageToast.show(
-            "Procurement summary report submitted for approval."
-        );
+        if (aFailedFiles.length) {
+            MessageBox.warning(
+                "The procurement summary report was submitted, but these attachments could not be uploaded:\n\n" +
+                aFailedFiles.join("\n")
+            );
+        } else {
+            MessageToast.show(
+                "Procurement summary report submitted for approval."
+            );
+        }
 
         this.getOwnerComponent()
             .getRouter()
@@ -1203,7 +1289,8 @@ oNewRequest.created()
         );
 
         MessageBox.error(
-            "The procurement request could not be submitted."
+            "The procurement request could not be submitted.\n\n" +
+            ((oError.error && oError.error.message) || oError.message || "")
         );
 
     }.bind(this))
@@ -1212,6 +1299,123 @@ oNewRequest.created()
         oButton.setEnabled(true);
 
     }.bind(this));
+        },
+
+        // Accepts "125000", "125,000.50" or "125 000"; returns the plain
+        // number string, "" when empty, or null when it is not a valid
+        // Decimal(15,2) (max 13 integer digits, 2 decimals).
+        _normalizeAmount: function (vValue) {
+            var sValue = String(vValue === undefined || vValue === null ? "" : vValue)
+                .replace(/[,\s]/g, "");
+            if (!sValue) {
+                return "";
+            }
+            return /^\d{1,13}(\.\d{1,2})?$/.test(sValue) ? sValue : null;
+        },
+
+        // The V4 model reports a failed request to the message model rather
+        // than rejecting a promise; pick up the newest server error text.
+        _getLatestServerError: function () {
+            var aMessages = sap.ui.getCore().getMessageManager().getMessageModel().getData() || [];
+            var aErrors = aMessages.filter(function (oMessage) {
+                return oMessage.getType() === "Error";
+            });
+            return aErrors.length ? aErrors[aErrors.length - 1].getMessage() : "";
+        },
+
+        _newUuid: function () {
+            if (window.crypto && window.crypto.randomUUID) {
+                return window.crypto.randomUUID();
+            }
+            // Fallback for non-secure contexts (plain http on a non-localhost host).
+            var aBytes = window.crypto.getRandomValues(new Uint8Array(16));
+            aBytes[6] = (aBytes[6] & 0x0f) | 0x40;
+            aBytes[8] = (aBytes[8] & 0x3f) | 0x80;
+            var sHex = Array.prototype.map.call(aBytes, function (iByte) {
+                return ("0" + iByte.toString(16)).slice(-2);
+            }).join("");
+            return sHex.slice(0, 8) + "-" + sHex.slice(8, 12) + "-" + sHex.slice(12, 16) + "-" +
+                sHex.slice(16, 20) + "-" + sHex.slice(20);
+        },
+
+        // Uploads each file into the content stream of its already-saved
+        // Attachments row, one after the other. Resolves with the names of
+        // the files that failed (empty when all succeeded); never rejects,
+        // because the request itself is already saved at this point.
+        _uploadAttachmentContents: function (sServiceUrl, aAttachments) {
+            var aFailedFiles = [];
+            if (!aAttachments.length) {
+                return Promise.resolve(aFailedFiles);
+            }
+
+            // Behind an approuter, modifying requests need a CSRF token.
+            return fetch(sServiceUrl, { method: "HEAD", headers: { "X-CSRF-Token": "Fetch" } })
+                .then(function (oResponse) {
+                    return oResponse.headers.get("X-CSRF-Token");
+                }, function () {
+                    return null;
+                })
+                .then(function (sToken) {
+                    return aAttachments.reduce(function (oPrevious, oAttachment) {
+                        return oPrevious.then(function () {
+                            var mHeaders = { "Content-Type": oAttachment.mimeType };
+                            if (sToken && sToken !== "Required") {
+                                mHeaders["X-CSRF-Token"] = sToken;
+                            }
+                            return fetch(sServiceUrl + "Attachments(" + oAttachment.ID + ")/content", {
+                                method: "PUT",
+                                headers: mHeaders,
+                                body: oAttachment.file
+                            }).then(function (oResponse) {
+                                if (!oResponse.ok) {
+                                    throw new Error(oResponse.status);
+                                }
+                            }).catch(function (oError) {
+                                console.error("Attachment upload failed:", oAttachment.fileName, oError);
+                                aFailedFiles.push(oAttachment.fileName);
+                            });
+                        });
+                    }, Promise.resolve());
+                })
+                .then(function () {
+                    return aFailedFiles;
+                });
+        },
+
+        // Downloads with the original file name; the Link next to it opens
+        // the same file in a new tab instead.
+        onDownloadAttachment: function (oEvent) {
+            var oAttachment = oEvent.getSource().getBindingContext("review").getObject();
+
+            fetch(oAttachment.url)
+                .then(function (oResponse) {
+                    if (!oResponse.ok) {
+                        throw new Error(oResponse.status);
+                    }
+                    return oResponse.blob();
+                })
+                .then(function (oBlob) {
+                    var sObjectUrl = URL.createObjectURL(oBlob);
+                    var oAnchor = document.createElement("a");
+                    oAnchor.href = sObjectUrl;
+                    oAnchor.download = oAttachment.fileName;
+                    document.body.appendChild(oAnchor);
+                    oAnchor.click();
+                    document.body.removeChild(oAnchor);
+                    setTimeout(function () {
+                        URL.revokeObjectURL(sObjectUrl);
+                    }, 1000);
+                })
+                .catch(function (oError) {
+                    console.error("Attachment download failed:", oError);
+                    MessageBox.error("The attachment '" + oAttachment.fileName + "' could not be downloaded.");
+                });
+        },
+
+        onFileSizeExceed: function (oEvent) {
+            MessageBox.warning(
+                "'" + oEvent.getParameter("fileName") + "' is larger than 10 MB. Please attach a smaller file."
+            );
         },
 
         onCancel: function () {
