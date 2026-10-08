@@ -75,6 +75,7 @@ service ProcurementService {
 
   action decideApproval(
     requestID : UUID,
-    decision  : String(20)
+    decision  : String(20),
+    remarks   : LargeString // required for REJECTED
   ) returns ProcurementRequests;
 }

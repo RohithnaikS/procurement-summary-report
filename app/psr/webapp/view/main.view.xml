@@ -73,6 +73,7 @@
                             <Text text="{review>email}" class="psrApprovalStepEmail" visible="{= !!${review>email} &amp;&amp; ${review>email} !== ${review>name} }"/>
                             <ObjectStatus text="{review>statusText}" state="{review>state}" class="psrApprovalStepStatus"/>
                             <Text text="{review>actionedAtText}" class="psrApprovalStepDate" visible="{= !!${review>actionedAtText} }"/>
+                            <Text text="“{review>remarks}”" class="psrApprovalStepRemarks" wrapping="true" visible="{= !!${review>remarks} }"/>
                         </VBox>
                     </HBox>
                     <Text text="No approvers assigned" class="psrApprovalFlowEmpty"

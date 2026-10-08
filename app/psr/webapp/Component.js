@@ -38,6 +38,14 @@ sap.ui.define([
 
             // enable routing
             this.getRouter().initialize();
+
+            // The BPA approval e-mail links to index.html?requestId=<ID>; a
+            // query parameter (unlike #/main/<ID>) survives the login
+            // redirect, so open the request from it here.
+            const sRequestId = new URLSearchParams(window.location.search).get("requestId");
+            if (sRequestId) {
+                this.getRouter().navTo("Routemain", { ID: sRequestId }, {}, true);
+            }
         }
 
     });

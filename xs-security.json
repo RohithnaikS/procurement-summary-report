@@ -1,0 +1,16 @@
+{
+  "scopes": [],
+  "attributes": [],
+  "role-templates": [],
+  "oauth2-configuration": {
+    "credential-types": [
+      "binding-secret",
+      "x509"
+    ],
+    "redirect-uris": [
+      "https://*.cfapps.ap11.hana.ondemand.com/login/callback",
+      "http://localhost:5000/login/callback"
+    ]
+  },
+  "authorities-inheritance": false
+}

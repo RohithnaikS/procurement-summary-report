@@ -369,7 +369,8 @@ this.getView().setModel(oApproverListModel, "approverList");
                     name: oApprover.approverName || oApprover.approverEmail || "",
                     email: oApprover.approverEmail || "",
                     isCurrent: false,
-                    actionedAtText: oApprover.actionedAt ? oDateFormat.format(new Date(oApprover.actionedAt)) : ""
+                    actionedAtText: oApprover.actionedAt ? oDateFormat.format(new Date(oApprover.actionedAt)) : "",
+                    remarks: oApprover.comments || ""
                 };
 
                 if (sStatus === "APPROVED") {
@@ -1257,18 +1258,25 @@ oCreateCompleted
         // attachments are there when they open the request.
         return this._uploadAttachmentContents(oODataModel.getServiceUrl(), aAttachments)
             .then(function (aFailedFiles) {
-                return this._startApprovalProcess(sRequestID).then(function () {
-                    return aFailedFiles;
+                return this._startApprovalProcess(sRequestID).then(function (sStatus) {
+                    var aWarnings = [];
+                    if (aFailedFiles.length) {
+                        aWarnings.push("These attachments could not be uploaded:\n" + aFailedFiles.join("\n"));
+                    }
+                    if (sStatus === "NOTIFICATION_FAILED") {
+                        aWarnings.push("The approval e-mail to the first approver could not be sent. Please contact the administrator.");
+                    }
+                    return aWarnings;
                 });
             }.bind(this));
 
     }.bind(this))
-    .then(function (aFailedFiles) {
+    .then(function (aWarnings) {
 
-        if (aFailedFiles.length) {
+        if (aWarnings.length) {
             MessageBox.warning(
-                "The procurement summary report was submitted, but these attachments could not be uploaded:\n\n" +
-                aFailedFiles.join("\n")
+                "The procurement summary report was submitted, but:\n\n" +
+                aWarnings.join("\n\n")
             );
         } else {
             MessageToast.show(
@@ -1423,26 +1431,97 @@ oCreateCompleted
         },
 
         onApprove: function () {
-            this._confirmDecision("APPROVED", "Approve this procurement request?");
+            this._confirmDecision("APPROVED");
         },
 
         onReject: function () {
-            this._confirmDecision("REJECTED", "Reject this procurement request?");
+            this._confirmDecision("REJECTED");
         },
 
-        _confirmDecision: function (sDecision, sQuestion) {
-            MessageBox.confirm(sQuestion, {
-                actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
-                emphasizedAction: MessageBox.Action.OK,
-                onClose: function (sAction) {
-                    if (sAction === MessageBox.Action.OK) {
-                        this._submitDecision(sDecision);
-                    }
-                }.bind(this)
+        onExit: function () {
+            if (this._oDecisionDialog) {
+                this._oDecisionDialog.destroy();
+            }
+        },
+
+        // Asks for remarks before the decision is sent. Remarks are required
+        // to reject and optional to approve; they are stored on the approver
+        // and passed to the next approver's BPA e-mail.
+        _confirmDecision: function (sDecision) {
+            var bReject = sDecision === "REJECTED";
+
+            if (!this._oDecisionDialog) {
+                this._createDecisionDialog();
+            }
+
+            this._oDecisionDialog.getModel("decision").setData({
+                decision: sDecision,
+                title: bReject ? "Reject Request" : "Approve Request",
+                actionText: bReject ? "Reject" : "Approve",
+                actionType: bReject ? "Reject" : "Accept",
+                remarksRequired: bReject,
+                placeholder: bReject
+                    ? "Enter the reason for rejecting this request"
+                    : "Optional remarks for the requester and the next approver",
+                remarks: "",
+                canSubmit: !bReject
             });
+            this._oDecisionDialog.open();
         },
 
-        _submitDecision: function (sDecision) {
+        _createDecisionDialog: function () {
+            var oDecisionModel = new JSONModel({});
+
+            // Deliberately not added as a view dependent: _setFormReadOnly
+            // walks the view's aggregations and would lock the remarks field.
+            this._oDecisionDialog = new sap.m.Dialog({
+                title: "{decision>/title}",
+                contentWidth: "32rem",
+                content: [
+                    new sap.m.VBox({
+                        items: [
+                            new sap.m.Label({
+                                text: "Remarks",
+                                required: "{decision>/remarksRequired}"
+                            }),
+                            new sap.m.TextArea({
+                                value: "{decision>/remarks}",
+                                placeholder: "{decision>/placeholder}",
+                                valueLiveUpdate: true,
+                                rows: 4,
+                                width: "100%",
+                                maxLength: 1000,
+                                liveChange: function (oEvent) {
+                                    oDecisionModel.setProperty("/canSubmit",
+                                        !oDecisionModel.getProperty("/remarksRequired") ||
+                                        !!oEvent.getParameter("value").trim());
+                                }
+                            })
+                        ]
+                    }).addStyleClass("sapUiSmallMargin")
+                ],
+                beginButton: new sap.m.Button({
+                    text: "{decision>/actionText}",
+                    type: "{decision>/actionType}",
+                    enabled: "{decision>/canSubmit}",
+                    press: function () {
+                        var oData = oDecisionModel.getData();
+                        this._oDecisionDialog.close();
+                        this._submitDecision(oData.decision, (oData.remarks || "").trim());
+                    }.bind(this)
+                }),
+                endButton: new sap.m.Button({
+                    text: "Cancel",
+                    press: function () {
+                        this._oDecisionDialog.close();
+                    }.bind(this)
+                })
+            });
+
+            this._oDecisionDialog.setModel(oDecisionModel, "decision");
+        },
+
+        _submitDecision: function (sDecision, sRemarks) {
             var oModel = this.getOwnerComponent().getModel();
             var sRequestId = this.getView().getModel("review").getProperty("/requestId");
             if (!oModel || !sRequestId) {
@@ -1454,6 +1533,7 @@ oCreateCompleted
             var oAction = oModel.bindContext("/decideApproval(...)");
             oAction.setParameter("requestID", sRequestId);
             oAction.setParameter("decision", sDecision);
+            oAction.setParameter("remarks", sRemarks || "");
             oAction.execute()
                 .then(function () {
                     MessageToast.show(sDecision === "APPROVED" ? "Request approved." : "Request rejected.");
@@ -1836,15 +1916,19 @@ _startApprovalProcess: function (sRequestID) {
         sRequestID
     );
 
+    // Resolves with the backend status: NOTIFIED, ALREADY_NOTIFIED or
+    // NOTIFICATION_FAILED (request saved, but the BPA e-mail could not start).
     return oAction.execute()
-        .then(function (oResult) {
+        .then(function () {
+
+            var sStatus = oAction.getBoundContext().getProperty("value");
 
             console.log(
-                "BPA approval process started:",
-                oResult
+                "BPA approval process:",
+                sStatus
             );
 
-            return oResult;
+            return sStatus;
 
         })
         .catch(function (oError) {

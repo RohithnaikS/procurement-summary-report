@@ -634,6 +634,13 @@
     color: #5b6f80;
 }
 
+.psrApprovalStepRemarks {
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    font-style: italic;
+    color: #32363a;
+}
+
 .psrApprovalStepStatus {
     margin: 0.35rem 0 0.15rem;
 }

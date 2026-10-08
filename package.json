@@ -20,8 +20,12 @@
   },
   "homepage": "https://github.com/RohithnaikS/procurement-summary-report#readme",
   "dependencies": {
+    "@cap-js/hana": "^2.8.3",
     "@cap-js/sqlite": "^2.4.0",
-    "@sap/cds": "^9.9.1"
+    "@sap-cloud-sdk/connectivity": "^4.9.1",
+    "@sap-cloud-sdk/http-client": "^4.9.1",
+    "@sap/cds": "^9.9.1",
+    "@sap/xssec": "^4.15.0"
   },
   "workspaces": [
     "app/*"
@@ -32,35 +36,49 @@
   },
   "cds": {
     "requires": {
-      "db": {
-        "kind": "sqlite",
-        "credentials": {
-          "url": "db.sqlite"
-        }
+      "CommonMasterDataService": {
+        "kind": "odata-v4"
       },
-      "auth": {
-        "kind": "mocked",
-        "users": {
-          "alex.johnson@flowmate.demo": {
-            "password": "FlowmateUser1!"
-          },
-          "priya.sharma@flowmate.demo": {
-            "password": "FlowmateUser1!"
-          },
-          "daniel.kim@flowmate.demo": {
-            "password": "FlowmateUser1!"
-          },
-          "maya.perera@flowmate.demo": {
-            "password": "FlowmateUser1!"
+      "[development]": {
+        "db": {
+          "kind": "sqlite",
+          "credentials": {
+            "url": "db.sqlite"
+          }
+        },
+        "auth": {
+          "kind": "mocked",
+          "users": {
+            "alex.johnson@flowmate.demo": {
+              "password": "FlowmateUser1!"
+            },
+            "priya.sharma@flowmate.demo": {
+              "password": "FlowmateUser1!"
+            },
+            "daniel.kim@flowmate.demo": {
+              "password": "FlowmateUser1!"
+            },
+            "maya.perera@flowmate.demo": {
+              "password": "FlowmateUser1!"
+            }
+          }
+        },
+        "CommonMasterDataService": {
+          "credentials": {
+            "url": "http://localhost:4020/odata/v4/flowmate-common",
+            "username": "ca.admin@flowmate.demo",
+            "password": "FlowmateCAAdmin1!"
           }
         }
       },
-      "CommonMasterDataService": {
-        "kind": "odata-v4",
-        "credentials": {
-          "url": "http://localhost:4020/odata/v4/flowmate-common",
-          "username": "ca.admin@flowmate.demo",
-            "password": "FlowmateCAAdmin1!"
+      "[production]": {
+        "db": "hana",
+        "auth": "xsuaa",
+        "CommonMasterDataService": {
+          "credentials": {
+            "destination": "flowmate-common-api",
+            "path": "/odata/v4/flowmate-common"
+          }
         }
       }
     }

@@ -1,7 +1,7 @@
 _schema-version: 3.3.0
 ID: psr
 version: 1.0.0
-description: "Welcome to your new CAP project."
+description: "Procurement Summary Report (PSR) with BPA approval e-mails."
 parameters:
   enable-parallel-deployments: true
 build-parameters:
@@ -10,7 +10,39 @@ build-parameters:
       commands:
         - npm ci
         - npx cds build --production
+        - mkdir -p gen/router
 modules:
+  # Serves the UI (copied from app/psr/webapp) and forces the IAS/XSUAA login,
+  # including for the deep link in the BPA approval e-mail.
+  - name: psr-approuter
+    type: nodejs
+    path: gen/router
+    parameters:
+      instances: 1
+      buildpack: nodejs_buildpack
+      memory: 256M
+      disk-quota: 512M
+    properties:
+      INCOMING_CONNECTION_TIMEOUT: 600000
+    build-parameters:
+      builder: custom
+      commands:
+        - mkdir -p webapp
+        - cp ../../router/package.json package.json
+        - cp ../../router/xs-app.json xs-app.json
+        - cp -R ../../app/psr/webapp/. webapp
+        - npm install
+    requires:
+      - name: psr-auth
+      - name: psr-destination
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api
+          url: ~{srv-url}
+          forwardAuthToken: true
+          timeout: 600000
+
   - name: psr-srv
     type: nodejs
     path: gen/srv
@@ -19,12 +51,55 @@ modules:
       buildpack: nodejs_buildpack
     build-parameters:
       builder: npm-ci
+    properties:
+      # Definition ID of the PSR approval-email process (BPA -> process ->
+      # Triggers -> API trigger). Without it no approval e-mails are sent.
+      BPA_PSR_DEFINITION_ID: ap11.arize-qas-9339ozek.psrapprovalprocess.pSRApprovalProcess
+      # Optional: subaccount destination for the BPA workflow API (client
+      # credentials). Defaults to the one Flowmate uses.
+      BPA_DESTINATION: bpa_workflow_technical
+      # Optional: fixed app URL for the e-mail link, e.g.
+      # https://<approuter-host>/index.html. When empty it is derived from
+      # the approuter host of the incoming request.
+      PSR_APP_URL: ""
     provides:
       - name: srv-api # required by consumers of CAP services (e.g. approuter)
         properties:
           srv-url: ${default-url}
     requires:
-      - name: flowmate-common-api
+      - name: psr-auth
+      - name: psr-db
+      - name: psr-destination
+
+  - name: psr-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: psr-db
 
 resources:
-  []
+  # Gives psr-srv access to the subaccount destinations
+  # (bpa_workflow_technical, flowmate-common-api).
+  - name: psr-destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+
+  - name: psr-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: psr-${space}
+        tenant-mode: dedicated
+
+  - name: psr-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared

@@ -84,6 +84,10 @@ entity Approvers : cuid {
   status        : String(20) default 'Pending';
   actionedAt    : DateTime;
   comments      : LargeString;
+  // BPA approval e-mail for this approver (sent when it is their turn)
+  notifiedAt        : DateTime;
+  bpaInstanceID     : String(100);
+  notificationError : String(500);
 }
 
 
