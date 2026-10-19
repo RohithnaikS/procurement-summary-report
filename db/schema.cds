@@ -9,6 +9,10 @@ entity ProcurementRequests : cuid, managed {
   approvalStatus             : String(20) default 'Draft';
   approvalDecisionAt         : DateTime;
   approvalDecisionBy         : String(255);
+  // BPA acknowledgement e-mail to the requester (sent on the final decision)
+  requesterNotifiedAt        : DateTime;
+  requesterBpaInstanceID     : String(100);
+  requesterNotificationError : String(500);
   virtual canCurrentUserDecide : Boolean;
   procurementName            : String(500);
   procurementObjective        : LargeString;

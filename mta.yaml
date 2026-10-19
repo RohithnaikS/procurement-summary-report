@@ -55,6 +55,9 @@ modules:
       # Definition ID of the PSR approval-email process (BPA -> process ->
       # Triggers -> API trigger). Without it no approval e-mails are sent.
       BPA_PSR_DEFINITION_ID: ap11.arize-qas-9339ozek.psrapprovalprocess.pSRApprovalProcess
+      # Definition ID of the PSR requester acknowledgement process, started
+      # once the request is finally approved or rejected.
+      BPA_ACK_DEFINITION_ID: ap11.arize-qas-9339ozek.psrrequesteracknowledgementprocess.pSRApprovalProcess
       # Optional: subaccount destination for the BPA workflow API (client
       # credentials). Defaults to the one Flowmate uses.
       BPA_DESTINATION: bpa_workflow_technical

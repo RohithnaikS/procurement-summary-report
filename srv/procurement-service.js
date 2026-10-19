@@ -41,6 +41,9 @@ module.exports = class ProcurementService extends cds.ApplicationService { async
   const BPA_TECHNICAL_DESTINATION = process.env.BPA_DESTINATION || 'bpa_workflow_technical'
   const BPA_WORKFLOW_PATH = '/workflow/rest/v1/workflow-instances'
   const BPA_PSR_DEFINITION_ID = process.env.BPA_PSR_DEFINITION_ID
+  // Requester acknowledgement process: started once when the request reaches
+  // its final state (last level approved, or any level rejected).
+  const BPA_ACK_DEFINITION_ID = process.env.BPA_ACK_DEFINITION_ID
 
   // Link in the e-mail. A query parameter (not #/main/<ID>) survives the
   // approuter -> IAS login redirect; Component.js turns it into the route.
@@ -63,19 +66,27 @@ module.exports = class ProcurementService extends cds.ApplicationService { async
     approveremail: [approver.approverEmail],
     approvername: approver.approverName || approver.approverEmail,
     applink: appLink(req, request.ID),
-    requestnumber: request.requestNumber || '',
-    procurementname: request.procurementName || '',
-    procurementvalue: request.procurementValueInclTax != null
-      ? `${request.procurementValueInclTax} ${request.currency_code || ''}`.trim()
-      : '',
-    requestername: (requester && requester.name) || request.createdBy || '',
-    requesteremail: (requester && requester.email) || '',
-    approvallevel: String(approver.loaLevel),
-    totallevels: String(approvers.length),
-    remarks: remarks || ''
+    ...buildAckContext(request, approver, approvers, requester, remarks)
   })
 
-  console.log(buildBpaContext.toString());
+  // Input of the requester acknowledgement trigger; the approval trigger
+  // shares these fields. `status` is only sent to the acknowledgement process.
+  function buildAckContext(request, approver, approvers, requester, remarks, status) {
+    const context = {
+      requestnumber: request.requestNumber || '',
+      procurementname: request.procurementName || '',
+      procurementvalue: request.procurementValueInclTax != null
+        ? `${request.procurementValueInclTax} ${request.currency_code || ''}`.trim()
+        : '',
+      requestername: (requester && requester.name) || request.createdBy || '',
+      requesteremail: (requester && requester.email) || '',
+      approvallevel: String(approver.loaLevel),
+      totallevels: String(approvers.length),
+      remarks: remarks || ''
+    }
+    if (status) context.status = status
+    return context
+  }
 
   // Destination + extra headers for the BPA call. On BTP the destination
   // service resolves bpa_workflow_technical including its OAuth token. For
@@ -104,6 +115,27 @@ module.exports = class ProcurementService extends cds.ApplicationService { async
     return { destination: { url: local.url }, headers: { authorization: `Bearer ${accessToken}` } }
   }
 
+  // Starts a BPA process instance and returns its ID.
+  const startBpaProcess = async (definitionId, context) => {
+    const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
+    const { destination, headers } = await bpaTarget()
+    const response = await executeHttpRequest(
+      destination,
+      {
+        method: 'POST',
+        url: BPA_WORKFLOW_PATH,
+        headers,
+        data: { definitionId, context }
+      },
+      { fetchCsrfToken: false }
+    )
+    return response.data && response.data.id
+  }
+
+  const bpaErrorDetail = (error) =>
+    (error.response && `${error.response.status} ${JSON.stringify(error.response.data)}`) ||
+    [error.message, error.cause && error.cause.message].filter(Boolean).join(' - ')
+
   // Starts the BPA process for one approver. `remarks` is shown in the
   // e-mail: the requester's remarks for level 1, otherwise what the previous
   // approver wrote. Never throws: the request / decision is already saved,
@@ -117,34 +149,56 @@ module.exports = class ProcurementService extends cds.ApplicationService { async
         throw new Error('BPA_PSR_DEFINITION_ID is not configured.')
       }
       const requester = await tx.run(SELECT.one.from(Requesters).where({ userID: request.createdBy }))
-      const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
-      const { destination, headers } = await bpaTarget()
-      const response = await executeHttpRequest(
-        destination,
-        {
-          method: 'POST',
-          url: BPA_WORKFLOW_PATH,
-          headers,
-          data: {
-            definitionId: BPA_PSR_DEFINITION_ID,
-            context: buildBpaContext(req, request, approver, approvers, requester, remarks)
-          }
-        },
-        { fetchCsrfToken: false }
+      const instanceID = await startBpaProcess(
+        BPA_PSR_DEFINITION_ID,
+        buildBpaContext(req, request, approver, approvers, requester, remarks)
       )
       await tx.run(UPDATE(Approvers).set({
         notifiedAt: now,
-        bpaInstanceID: response.data && response.data.id,
+        bpaInstanceID: instanceID,
         notificationError: null
       }).where({ ID: approver.ID }))
       console.log(`BPA approval e-mail started for ${approver.approverEmail} (level ${approver.loaLevel}) on ${request.requestNumber}`)
     } catch (error) {
-      const detail = (error.response && `${error.response.status} ${JSON.stringify(error.response.data)}`) ||
-        [error.message, error.cause && error.cause.message].filter(Boolean).join(' - ')
+      const detail = bpaErrorDetail(error)
       console.error(`BPA approval e-mail for ${approver.approverEmail} on ${request.requestNumber} failed:`, detail)
       await tx.run(UPDATE(Approvers).set({
         notificationError: String(detail).slice(0, 500)
       }).where({ ID: approver.ID }))
+    }
+  }
+
+  // Starts the requester acknowledgement process once the request is final.
+  // `approver` is the one who made the final decision, `status` is
+  // 'Approved' or 'Rejected'. Never throws, like notifyApprover; the outcome
+  // is recorded on the request.
+  const notifyRequester = async (req, request, approver, approvers, status, remarks) => {
+    const tx = cds.tx(req)
+    const now = new Date().toISOString()
+    try {
+      if (!BPA_ACK_DEFINITION_ID) {
+        throw new Error('BPA_ACK_DEFINITION_ID is not configured.')
+      }
+      const requester = await tx.run(SELECT.one.from(Requesters).where({ userID: request.createdBy }))
+      if (!requester || !requester.email) {
+        throw new Error(`No e-mail address found for requester ${request.createdBy}.`)
+      }
+      const instanceID = await startBpaProcess(
+        BPA_ACK_DEFINITION_ID,
+        buildAckContext(request, approver, approvers, requester, remarks, status)
+      )
+      await tx.run(UPDATE(ProcurementRequests).set({
+        requesterNotifiedAt: now,
+        requesterBpaInstanceID: instanceID,
+        requesterNotificationError: null
+      }).where({ ID: request.ID }))
+      console.log(`BPA requester acknowledgement (${status}) started for ${requester.email} on ${request.requestNumber}`)
+    } catch (error) {
+      const detail = bpaErrorDetail(error)
+      console.error(`BPA requester acknowledgement on ${request.requestNumber} failed:`, detail)
+      await tx.run(UPDATE(ProcurementRequests).set({
+        requesterNotificationError: String(detail).slice(0, 500)
+      }).where({ ID: request.ID }))
     }
   }
 
@@ -375,6 +429,12 @@ this.on('getVendors', async (req) => {
         // The next approver's e-mail shows what this approver wrote.
         await notifyApprover(req, request, followingApprover, approvers, remarks)
       }
+    } else {
+      // Final state (last level approved, or rejected): acknowledge the requester.
+      await notifyRequester(
+        req, request, nextApprover, approvers,
+        decision === 'APPROVED' ? 'Approved' : 'Rejected', remarks
+      )
     }
 
     return tx.run(SELECT.one.from(ProcurementRequests).where({ ID: requestID }))
