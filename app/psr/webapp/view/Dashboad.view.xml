@@ -22,17 +22,28 @@
                     </contentLeft>
                     <contentRight>
                         <HBox alignItems="Center" class="psrRequesterBadge">
-                            <Label text="Requester" class="psrRequesterLabel"/>
-                            <Text text="{dashboard>/requesterEmail}" class="psrRequesterValue"/>
+                            <Label text="{= ${dashboard>/isAdmin} ? 'Admin:' : 'Requester:' }" class="psrRequesterLabel"/>
+                            <Text text="{dashboard>/requesterName}" class="psrRequesterValue"/>
                         </HBox>
                     </contentRight>
                 </Bar>
 
                 <!-- =========================================================
-                     Action Row: "Fill Procurement Summary Report" button
+                     Workspace hero: title (left) / Fill button (right)
                      ========================================================= -->
-                <Toolbar class="psrDashboardActionToolbar">
-                    <ToolbarSpacer/>
+                <HBox
+                    class="psrDashboardHero"
+                    width="100%"
+                    alignItems="Center"
+                    justifyContent="SpaceBetween"
+                    wrap="Wrap">
+                    <HBox class="psrDashboardHeroTitle" alignItems="Center">
+                        <core:Icon class="psrDashboardHeroIcon" src="sap-icon://monitor-payments"/>
+                        <VBox>
+                            <Title text="Procurement Summary Workspace" level="H1"/>
+                            <Text class="psrDashboardHeroText" text="Create, submit and track procurement summary reports and approvals."/>
+                        </VBox>
+                    </HBox>
                     <Button
                         id="idFillPSRButton"
                         text="Fill Procurement Summary Report"
@@ -40,13 +51,62 @@
                         icon="sap-icon://add-document"
                         press=".onFillProcurementSummaryReport"
                         class="psrSubmitButton" />
-                </Toolbar>
+                </HBox>
 
-                
+                <!-- =========================================================
+                     Tiles: All Requests (Admin only) / My Requests /
+                     Pending for My Approval. The selected tile drives the table.
+                     ========================================================= -->
+                <HBox class="psrDashboardTiles" wrap="Wrap">
+                    <GenericTile
+                        id="idAllRequestsTile"
+                        header="All Requests"
+                        subheader="Every procurement summary report"
+                        visible="{dashboard>/isAdmin}"
+                        press=".onTilePress"
+                        class="psrDashboardTile psrTileAll">
+                        <customData>
+                            <core:CustomData key="tile" value="all"/>
+                            <core:CustomData key="selected" value="{= ${dashboard>/selectedTile} === 'all' ? 'true' : 'false' }" writeToDom="true"/>
+                        </customData>
+                        <TileContent>
+                            <NumericContent value="{dashboard>/counts/all}" icon="sap-icon://list" withMargin="false"/>
+                        </TileContent>
+                    </GenericTile>
+                    <GenericTile
+                        id="idMyRequestsTile"
+                        header="My Requests"
+                        subheader="Reports I submitted"
+                        press=".onTilePress"
+                        class="psrDashboardTile psrTileMy">
+                        <customData>
+                            <core:CustomData key="tile" value="my"/>
+                            <core:CustomData key="selected" value="{= ${dashboard>/selectedTile} === 'my' ? 'true' : 'false' }" writeToDom="true"/>
+                        </customData>
+                        <TileContent>
+                            <NumericContent value="{dashboard>/counts/my}" icon="sap-icon://employee" withMargin="false"/>
+                        </TileContent>
+                    </GenericTile>
+                    <GenericTile
+                        id="idPendingApprovalTile"
+                        header="Pending for My Approval"
+                        subheader="Waiting for my decision"
+                        press=".onTilePress"
+                        class="psrDashboardTile psrTilePending">
+                        <customData>
+                            <core:CustomData key="tile" value="approval"/>
+                            <core:CustomData key="selected" value="{= ${dashboard>/selectedTile} === 'approval' ? 'true' : 'false' }" writeToDom="true"/>
+                        </customData>
+                        <TileContent>
+                            <NumericContent value="{dashboard>/counts/approval}" icon="sap-icon://approvals" withMargin="false"/>
+                        </TileContent>
+                    </GenericTile>
+                </HBox>
+
                 <Table
                     id="idPSRTable"
                     class="psrDashboardTable"
-                    items="{dashboard>/requests}"
+                    items="{dashboard>/visibleRequests}"
                     growing="true"
                     growingThreshold="20"
                     autoPopinMode="false"
@@ -55,17 +115,36 @@
                     alternateRowColors="true">
 
                     <headerToolbar>
-                        <Toolbar>
-                            <Title text="Submitted Requests" level="H3"/>
+                        <OverflowToolbar>
+                            <Title text="{dashboard>/tableTitle}" level="H3"/>
                             <ToolbarSpacer/>
-                            <SearchField class="psrDashboardSearch" width="22rem" liveChange=".onTableSearch" placeholder="Search requests"/>
-                        </Toolbar>
+                            <SearchField
+                                id="idDashboardSearch"
+                                class="psrDashboardSearch"
+                                width="20rem"
+                                liveChange=".onTableSearch"
+                                search=".onTableSearch"
+                                placeholder="Search by title or requester"/>
+                            <Select id="idStatusFilter" selectedKey="{dashboard>/statusFilter}" change=".onStatusFilterChange" width="10rem">
+                                <core:Item key="" text="All statuses"/>
+                                <core:Item key="Pending" text="Pending"/>
+                                <core:Item key="Approved" text="Approved"/>
+                                <core:Item key="Rejected" text="Rejected"/>
+                            </Select>
+                            <Button
+                                id="idSortCreatedAtButton"
+                                icon="{= ${dashboard>/sortDescending} ? 'sap-icon://sort-descending' : 'sap-icon://sort-ascending' }"
+                                text="{= ${dashboard>/sortDescending} ? 'Newest first' : 'Oldest first' }"
+                                tooltip="Sort by Created At"
+                                press=".onToggleSort"/>
+                        </OverflowToolbar>
                     </headerToolbar>
 
                     <columns>
-                        <Column width="24rem"><Text text="Request ID"/></Column>
+                        <Column width="11rem"><Text text="Request ID"/></Column>
+                        <Column><Text text="Title"/></Column>
                         <Column width="15rem"><Text text="Requester"/></Column>
-                        <Column><Text text="Procurement Name"/></Column>
+                        <Column width="13rem"><Text text="Created At"/></Column>
                         <Column width="9rem" hAlign="Center"><Text text="Status"/></Column>
                     </columns>
 
@@ -73,11 +152,12 @@
                         <ColumnListItem type="Navigation" press=".onRequestPress">
                             <cells>
                                 <Text text="{dashboard>requestNumber}" wrapping="false" class="psrRequestNumber"/>
-                                <Text text="{dashboard>requesterName}"/>
                                 <Text text="{dashboard>procurementName}"/>
+                                <Text text="{dashboard>requesterName}"/>
+                                <Text text="{path: 'dashboard>createdAt', formatter: '.formatDateTime'}"/>
                                 <ObjectStatus
-                                    text="{= ${dashboard>approvalStatus} === 'APPROVED' ? 'Approved' : (${dashboard>approvalStatus} === 'REJECTED' ? 'Rejected' : 'Pending') }"
-                                    state="{= ${dashboard>approvalStatus} === 'APPROVED' ? 'Success' : (${dashboard>approvalStatus} === 'REJECTED' ? 'Error' : 'Warning') }"
+                                    text="{dashboard>statusText}"
+                                    state="{= ${dashboard>statusText} === 'Approved' ? 'Success' : (${dashboard>statusText} === 'Rejected' ? 'Error' : 'Warning') }"
                                     class="psrApprovalStatus"/>
                             </cells>
                         </ColumnListItem>

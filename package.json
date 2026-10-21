@@ -50,16 +50,20 @@
           "kind": "mocked",
           "users": {
             "alex.johnson@flowmate.demo": {
-              "password": "FlowmateUser1!"
+              "password": "FlowmateUser1!",
+              "roles": ["Admin", "Requester"]
             },
             "priya.sharma@flowmate.demo": {
-              "password": "FlowmateUser1!"
+              "password": "FlowmateUser1!",
+              "roles": ["Requester"]
             },
             "daniel.kim@flowmate.demo": {
-              "password": "FlowmateUser1!"
+              "password": "FlowmateUser1!",
+              "roles": ["Requester"]
             },
             "maya.perera@flowmate.demo": {
-              "password": "FlowmateUser1!"
+              "password": "FlowmateUser1!",
+              "roles": ["Requester"]
             }
           }
         },

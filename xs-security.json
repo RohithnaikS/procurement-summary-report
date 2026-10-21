@@ -1,7 +1,33 @@
 {
-  "scopes": [],
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Admin",
+      "description": "See and manage all procurement summary reports"
+    },
+    {
+      "name": "$XSAPPNAME.Requester",
+      "description": "Create and track own procurement summary reports"
+    }
+  ],
   "attributes": [],
-  "role-templates": [],
+  "role-templates": [
+    {
+      "name": "Admin",
+      "description": "PSR administrator: all requests",
+      "scope-references": [
+        "$XSAPPNAME.Admin",
+        "$XSAPPNAME.Requester"
+      ]
+    },
+    {
+      "name": "Requester",
+      "description": "PSR requester: own requests and requests to approve",
+      "scope-references": [
+        "$XSAPPNAME.Requester"
+      ]
+    }
+  ],
+ 
   "oauth2-configuration": {
     "credential-types": [
       "binding-secret",

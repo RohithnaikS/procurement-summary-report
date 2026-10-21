@@ -1,15 +1,23 @@
 /* =========================================================
    Procurement Summary Report — Application Theme
+   Palette and tile design follow the Flowmate CA workspace.
    ========================================================= */
 
 :root {
-    --psr-navy: #12355b;
-    --psr-blue: #176b87;
-    --psr-teal: #159a9c;
-    --psr-mint: #e9f7f5;
-    --psr-ink: #18324a;
-    --psr-line: #d7e4eb;
+    --psr-ink: #1d2d3e;
+    --psr-muted: #536b7d;
+    --psr-blue: #4f46e5;
+    --psr-blue-dark: #3730a3;
+    --psr-accent: #7c3aed;
+    --psr-soft: #eef2ff;
+    --psr-line: #d9e2ec;
     --psr-surface: #fff;
+
+    /* Tile accents */
+    --psr-purple: #7e22ce;
+    --psr-purple-dark: #6b21a8;
+    --psr-teal: #0f766e;
+    --psr-teal-dark: #115e59;
 }
 
 
@@ -19,35 +27,25 @@
 
 .psrPage,
 .psrPage .sapMPageBgStandard {
-    background: linear-gradient(
-        145deg,
-        #edf6f8 0%,
-        #f7fafc 45%,
-        #eef4fa 100%
-    );
+    background:
+        linear-gradient(115deg, rgba(79, 70, 229, 0.055) 0, rgba(79, 70, 229, 0) 28rem),
+        linear-gradient(245deg, rgba(15, 118, 110, 0.055) 0, rgba(15, 118, 110, 0) 26rem),
+        #f5f7f9;
 }
 
 
 /* =========================================================
-   Report Header
+   Header Bar
    ========================================================= */
-
-/* Force the report header above the theme Bar styling. */
 
 .psrHeaderBar.sapMBar {
     height: 3.5rem;
     padding: 0 1.5rem;
     box-sizing: border-box;
-
-    background: linear-gradient(
-        105deg,
-        var(--psr-navy),
-        var(--psr-blue) 58%,
-        var(--psr-teal)
-    ) !important;
-
+    background: rgba(255, 255, 255, 0.96) !important;
     border: 0;
-    box-shadow: 0 3px 12px rgba(18, 53, 91, 0.24);
+    border-bottom: 1px solid var(--psr-line);
+    box-shadow: 0 2px 10px rgba(34, 54, 73, 0.06);
 }
 
 .psrHeaderBar .sapMBarLeft,
@@ -56,15 +54,10 @@
     height: 3.5rem;
 }
 
-
-/* =========================================================
-   Header Title
-   ========================================================= */
-
 .psrHeaderTitle,
 .psrHeaderTitle.sapMTitle,
 .psrHeaderTitle .sapMTitleText {
-    color: #fff !important;
+    color: var(--psr-ink) !important;
     font-weight: 700;
     font-size: 1.15rem;
     text-shadow: none;
@@ -72,30 +65,29 @@
 
 
 /* =========================================================
-   Requester Badge
+   Requester / Admin Badge
    ========================================================= */
 
 .psrRequesterBadge {
     gap: 0.5rem;
-    padding: 0.35rem 0.8rem;
-
-    background: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.35rem 0.85rem;
+    background: var(--psr-soft);
+    border: 1px solid #c7d2fe;
     border-radius: 1.25rem;
 }
 
 .psrRequesterLabel,
 .psrRequesterLabel.sapMLabel {
-    color: #cdeef0 !important;
-    font-size: 0.72rem;
+    color: var(--psr-blue) !important;
+    font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     margin: 0 !important;
 }
 
 .psrRequesterValue {
-    color: #fff !important;
-    font-weight: 700;
+    color: var(--psr-ink) !important;
+    font-weight: 600;
 }
 
 
@@ -107,43 +99,38 @@
     max-width: 68rem;
     margin: 1.75rem auto;
     padding: 0 2rem 2rem;
-
     background: var(--psr-surface);
-    border: 1px solid rgba(122, 157, 177, 0.26);
-    border-radius: 1rem;
-
-    box-shadow: 0 10px 28px rgba(35, 77, 109, 0.12);
-
+    border: 1px solid rgba(53, 76, 96, 0.14);
+    border-radius: 0.75rem;
+    box-shadow: 0 0.5rem 1.25rem rgba(34, 54, 73, 0.09);
     overflow: hidden;
 }
 
 
 /* =========================================================
-   Report Hero Section
+   Report Hero (request form) — white card, indigo accent
    ========================================================= */
 
 .psrReportHero {
     margin: 0 -2rem 1.5rem;
-    padding: 1.8rem 2rem 1.55rem;
-
-    background: linear-gradient(
-        120deg,
-        #12355b,
-        #176b87 68%,
-        #159a9c
-    );
+    padding: 1.5rem 2rem 1.35rem;
+    background:
+        linear-gradient(100deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9)),
+        linear-gradient(90deg, rgba(79, 70, 229, 0.13), rgba(124, 58, 237, 0.1) 48%, rgba(15, 118, 110, 0.1));
+    border-left: 0.375rem solid var(--psr-blue);
+    border-bottom: 1px solid var(--psr-line);
 }
 
 .psrReportHeroTitle,
 .psrReportHeroTitle.sapMTitle,
 .psrReportHeroTitle .sapMTitleText {
-    color: #fff !important;
-    font-size: 1.75rem;
-    font-weight: 700;
+    color: var(--psr-ink) !important;
+    font-size: 1.6rem;
+    font-weight: 800;
 }
 
 .psrReportHeroSubtitle {
-    color: #d9f3f2 !important;
+    color: var(--psr-muted) !important;
     margin-top: 0.35rem;
 }
 
@@ -157,7 +144,7 @@
 }
 
 .psrRequestMetaLabel {
-    color: #cdeef0 !important;
+    color: var(--psr-muted) !important;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -165,7 +152,7 @@
 }
 
 .psrRequestMetaValue {
-    color: #fff !important;
+    color: var(--psr-blue-dark) !important;
     font-family: Consolas, "Courier New", monospace;
     font-size: 1rem;
     font-weight: 700;
@@ -202,21 +189,16 @@
 .psrFormContainer .sapMInputBaseContentWrapper {
     border: 1px solid var(--psr-line) !important;
     border-radius: 0.5rem !important;
-    background: #fbfdfe;
+    background: #fbfcfe;
 }
 
-.psrFormContainer
-    .sapMInputBase:hover
-    .sapMInputBaseContentWrapper {
-    border-color: var(--psr-teal) !important;
+.psrFormContainer .sapMInputBase:hover .sapMInputBaseContentWrapper {
+    border-color: var(--psr-accent) !important;
 }
 
-.psrFormContainer
-    .sapMInputBaseContentWrapper.sapMInputBaseContentWrapperFocused {
+.psrFormContainer .sapMInputBaseContentWrapper.sapMInputBaseContentWrapperFocused {
     border-color: var(--psr-blue) !important;
-
-    box-shadow:
-        0 0 0 0.16rem rgba(21, 154, 156, 0.16) !important;
+    box-shadow: 0 0 0 0.16rem rgba(79, 70, 229, 0.16) !important;
 }
 
 
@@ -231,9 +213,8 @@
     margin: 0.1rem 0 0.55rem;
     padding: 0.5rem 0.65rem;
     box-sizing: border-box;
-
-    background: var(--psr-mint);
-    border: 1px solid #c9e9e5;
+    background: #f7f8ff;
+    border: 1px solid #dfe3fb;
     border-radius: 0.55rem;
 }
 
@@ -244,9 +225,7 @@
 .psrRadioGroup .sapMRb {
     display: inline-flex !important;
     align-items: center;
-
     min-height: 2.15rem;
-
     white-space: nowrap;
 }
 
@@ -260,28 +239,21 @@
     display: inline-block !important;
     width: auto !important;
     padding: 0 !important;
-
     color: var(--psr-ink) !important;
     line-height: 1.3rem !important;
     vertical-align: middle;
 }
 
-
-/* Selected Radio Button */
-
 .psrRadioGroup .sapMRb.sapMRbSel .sapMRbB {
-    border-color: var(--psr-teal) !important;
+    border-color: var(--psr-blue) !important;
 }
 
 .psrRadioGroup .sapMRb.sapMRbSel .sapMRbB:before {
-    background: var(--psr-teal) !important;
+    background: var(--psr-blue) !important;
 }
 
-
-/* Radio Button Hover */
-
 .psrRadioGroup .sapMRb:hover .sapMRbB {
-    border-color: var(--psr-blue) !important;
+    border-color: var(--psr-accent) !important;
 }
 
 
@@ -292,64 +264,54 @@
 .psrSubSection {
     margin-top: 1rem;
     padding: 1rem;
-
-    background: #f6fbfc;
+    background: #f8f9fc;
     border: 1px solid var(--psr-line);
-    border-left: 0.25rem solid var(--psr-teal);
+    border-left: 0.25rem solid var(--psr-blue);
     border-radius: 0.6rem;
 }
 
 
 /* =========================================================
-   Action Bar
+   Action Bar + Buttons
    ========================================================= */
 
 .psrActionBar {
     margin-top: 2rem;
     padding-top: 1.25rem;
-
     border-top: 1px solid var(--psr-line);
 }
 
-
-/* =========================================================
-   Submit Button
-   ========================================================= */
-
 .psrSubmitButton.sapMBtn .sapMBtnInner {
-    background: linear-gradient(
-        105deg,
-        var(--psr-blue),
-        var(--psr-teal)
-    ) !important;
-
+    background: var(--psr-blue) !important;
     border-color: var(--psr-blue) !important;
     color: #fff !important;
-
-    border-radius: 0.45rem;
-
-    box-shadow: 0 4px 10px rgba(23, 107, 135, 0.22);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.375rem 1rem rgba(79, 70, 229, 0.28);
+    transition: background-color 0.16s ease, transform 0.16s ease;
 }
 
+.psrSubmitButton.sapMBtn .sapMBtnInner .sapMBtnIcon,
+.psrSubmitButton.sapMBtn .sapMBtnInner .sapMBtnContent {
+    color: #fff !important;
+}
 
-/* =========================================================
-   Cancel Button
-   ========================================================= */
+.psrSubmitButton.sapMBtn:hover .sapMBtnInner {
+    background: var(--psr-blue-dark) !important;
+    transform: translateY(-1px);
+}
 
 .psrCancelButton.sapMBtn .sapMBtnInner {
     color: var(--psr-blue) !important;
-    border-color: #a9cbd6 !important;
-    border-radius: 0.45rem;
+    border-color: #c7d2fe !important;
+    border-radius: 0.5rem;
 }
 
 
 /* =========================================================
-   Responsive Design — Mobile
+   Responsive Design — Mobile (form)
    ========================================================= */
 
 @media (max-width: 600px) {
-
-    /* Header */
 
     .psrHeaderBar.sapMBar {
         padding: 0 0.75rem;
@@ -359,16 +321,10 @@
         display: none !important;
     }
 
-
-    /* Form Container */
-
     .psrFormContainer {
         margin: 0.75rem;
         padding: 0 1rem 1.25rem;
     }
-
-
-    /* Hero Section */
 
     .psrReportHero {
         margin: 0 -1rem 1rem;
@@ -380,9 +336,6 @@
         font-size: 1.35rem;
     }
 
-
-    /* Radio Buttons */
-
     .psrRadioGroup .sapMRbGCol {
         width: 100% !important;
     }
@@ -390,9 +343,7 @@
 
 
 /* =========================================================
-   Dashboard View — Additions
-   (append this section to the bottom of your existing styles.css;
-   it reuses the same --psr-* variables defined at the top of the file)
+   Dashboard
    ========================================================= */
 
 .psrDashboardContainer {
@@ -402,18 +353,186 @@
 }
 
 
-/* =========================================================
-   Action Toolbar ("Fill Procurement Summary Report")
-   ========================================================= */
+/* Workspace hero card: title on the left, Fill button on the right. */
 
-.psrDashboardActionToolbar {
-    padding: 1.25rem 1.5rem 0.5rem;
-    background: transparent;
+.psrDashboardHero {
+    box-sizing: border-box;
+    gap: 1rem;
+    margin: 1.25rem 1.5rem 0;
+    width: calc(100% - 3rem) !important;
+    padding: 1.1rem 1.5rem;
+    background:
+        linear-gradient(100deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9)),
+        linear-gradient(90deg, rgba(79, 70, 229, 0.13), rgba(124, 58, 237, 0.1) 48%, rgba(15, 118, 110, 0.1));
+    border: 1px solid rgba(53, 76, 96, 0.14);
+    border-left: 0.375rem solid var(--psr-blue);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1.25rem rgba(34, 54, 73, 0.09);
 }
 
-.psrDashboardActionToolbar .psrSubmitButton.sapMBtn .sapMBtnInner {
-    padding: 0 1.1rem;
-    height: 2.5rem;
+.psrDashboardHeroTitle {
+    gap: 0.875rem;
+    min-width: 18rem;
+}
+
+.psrDashboardHeroTitle .sapMTitle {
+    color: var(--psr-ink);
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.psrDashboardHeroIcon {
+    box-sizing: border-box;
+    width: 3rem;
+    height: 3rem;
+    padding-top: 0.7rem;
+    color: var(--psr-blue);
+    font-size: 1.5rem;
+    text-align: center;
+    background: var(--psr-soft);
+    border: 1px solid #c7d2fe;
+    border-radius: 0.5rem;
+}
+
+.psrDashboardHeroText {
+    margin-top: 0.25rem;
+    color: var(--psr-muted) !important;
+    font-size: 0.95rem;
+}
+
+.psrDashboardHero .psrSubmitButton.sapMBtn {
+    height: 2.75rem;
+}
+
+.psrDashboardHero .psrSubmitButton.sapMBtn .sapMBtnInner {
+    height: 2.75rem;
+    padding: 0 1.25rem;
+    font-weight: 700;
+}
+
+
+/* Tiles (ported from Flowmate .flowmateTile). They share the full width
+   equally: HBox wraps every tile in a .sapMFlexItem, which is what grows. */
+
+.psrDashboardTiles {
+    display: flex;
+    flex-wrap: nowrap !important;
+    align-items: stretch;
+    gap: 1.25rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1.25rem 1.5rem 0;
+}
+
+.psrDashboardTiles > .sapMFlexItem {
+    flex: 1 1 0 !important;
+    min-width: 0;
+}
+
+.psrDashboardTiles > .sapUiHiddenPlaceholder {
+    display: none !important;
+}
+
+.psrDashboardTile.sapMGT {
+    position: relative;
+    overflow: hidden;
+    width: 100% !important;
+    max-width: none;
+    height: auto;
+    min-height: 10.25rem;
+    box-sizing: border-box;
+    border: 1px solid rgba(53, 76, 96, 0.16);
+    border-radius: 0.5rem;
+    background: var(--psr-surface);
+    box-shadow: 0 0.375rem 1rem rgba(34, 54, 73, 0.1);
+    transition: box-shadow 0.16s ease, transform 0.16s ease, border-color 0.16s ease;
+}
+
+/* coloured top bar */
+.psrDashboardTile.sapMGT::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 0.35rem;
+    background: var(--psr-tile-accent);
+}
+
+/* soft wash behind the number */
+.psrDashboardTile.sapMGT::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 4.25rem;
+    background: var(--psr-tile-wash);
+    pointer-events: none;
+}
+
+.psrDashboardTile.sapMGT:hover {
+    border-color: var(--psr-tile-accent);
+    box-shadow: 0 0.625rem 1.5rem rgba(34, 54, 73, 0.17);
+    transform: translateY(-0.125rem);
+}
+
+.psrDashboardTile.sapMGT[data-selected="true"] {
+    border: 2px solid var(--psr-tile-accent);
+    background: var(--psr-tile-tint);
+}
+
+.psrDashboardTile .sapMGTHdrTxt {
+    color: var(--psr-ink);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.psrDashboardTile .sapMGTSubHdrTxt {
+    color: var(--psr-muted);
+    font-size: 0.875rem;
+}
+
+.psrDashboardTile .sapMGTContent,
+.psrDashboardTile .sapMTileCnt {
+    position: relative;
+    z-index: 1;
+}
+
+.psrDashboardTile .sapMNCInner {
+    align-items: flex-end;
+}
+
+.psrDashboardTile .sapMNCIconImage {
+    color: var(--psr-tile-accent) !important;
+    opacity: 0.9;
+}
+
+.psrDashboardTile .sapMNCValue,
+.psrDashboardTile .sapMNCValueScr {
+    color: var(--psr-tile-accent-dark) !important;
+    font-weight: 800;
+}
+
+.psrTileAll {
+    --psr-tile-accent: var(--psr-purple);
+    --psr-tile-accent-dark: var(--psr-purple-dark);
+    --psr-tile-tint: #faf5ff;
+    --psr-tile-wash: linear-gradient(135deg, rgba(126, 34, 206, 0.14), rgba(126, 34, 206, 0));
+}
+
+.psrTileMy {
+    --psr-tile-accent: var(--psr-blue);
+    --psr-tile-accent-dark: var(--psr-blue-dark);
+    --psr-tile-tint: #eef0fb;
+    --psr-tile-wash: linear-gradient(135deg, rgba(79, 70, 229, 0.14), rgba(79, 70, 229, 0));
+}
+
+.psrTilePending {
+    --psr-tile-accent: var(--psr-teal);
+    --psr-tile-accent-dark: var(--psr-teal-dark);
+    --psr-tile-tint: #f0faf8;
+    --psr-tile-wash: linear-gradient(135deg, rgba(15, 118, 110, 0.15), rgba(20, 184, 166, 0.04));
 }
 
 
@@ -422,14 +541,13 @@
    ========================================================= */
 
 .psrDashboardTable {
-    /* Separates the requests area from the navigation/action bar. */
     margin: 1.5rem;
     width: calc(100% - 3rem) !important;
     box-sizing: border-box;
     background: var(--psr-surface);
-    border: 1px solid rgba(122, 157, 177, 0.26);
-    border-radius: 0.75rem;
-    box-shadow: 0 10px 28px rgba(35, 77, 109, 0.12);
+    border: 1px solid rgba(53, 76, 96, 0.14);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1.25rem rgba(34, 54, 73, 0.09);
     overflow: hidden;
 }
 
@@ -442,15 +560,24 @@
     min-width: 18rem;
 }
 
+.psrDashboardTable .sapMListHdr,
+.psrDashboardTable .sapMTB {
+    background: var(--psr-surface);
+}
+
 .psrDashboardTable .sapMListTblHeader,
-.psrDashboardTable .sapMListHdr {
-    background: var(--psr-mint);
+.psrDashboardTable .sapMListTblHeaderCell {
+    background: linear-gradient(180deg, #f9fafd, #f3f5fb);
+    border-bottom: 1px solid var(--psr-line);
 }
 
 .psrDashboardTable .sapMListTblHeaderCell .sapMLabel,
 .psrDashboardTable .sapMListTblHeaderCell .sapMText {
-    color: var(--psr-navy);
+    color: #455b70;
+    font-size: 0.78rem;
     font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
     line-height: 1.25;
     white-space: normal;
 }
@@ -461,15 +588,16 @@
     max-width: 16rem;
     overflow-wrap: anywhere;
     white-space: normal;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
 }
 
-/* A UUID-based PSR reference must remain readable as one value. */
 .psrDashboardTable .psrRequestNumber {
     display: block;
     white-space: nowrap !important;
-    color: var(--psr-navy);
+    color: var(--psr-blue-dark);
     font-family: Consolas, "Courier New", monospace;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 700;
 }
 
@@ -484,20 +612,25 @@
 .psrDashboardTable .psrApprovalStatus {
     min-width: 5.5rem;
     text-align: center;
-    background: #eef6f8;
+    background: #f3f5fb;
 }
 
-.psrDashboardTable .sapMListTblRow:hover {
-    background: var(--psr-mint);
+.psrDashboardTable .sapMListTblRow {
+    background: var(--psr-surface);
+    transition: background-color 0.16s ease;
 }
 
 .psrDashboardTable .sapMListTblRow.sapMLIBAlternateBg {
-    background: #f6fbfc;
+    background: #fafbfd;
+}
+
+.psrDashboardTable .sapMListTblRow:hover {
+    background: #f5f7ff;
 }
 
 
 /* =========================================================
-   Responsive Design — Mobile
+   Responsive Design — Mobile (dashboard)
    ========================================================= */
 
 @media (max-width: 600px) {
@@ -506,8 +639,24 @@
         padding: 0 0 1rem;
     }
 
-    .psrDashboardActionToolbar {
-        padding: 0.75rem 1rem 0.5rem;
+    .psrDashboardHero {
+        margin: 0.75rem 1rem 0;
+        width: calc(100% - 2rem) !important;
+        padding: 1rem;
+    }
+
+    .psrDashboardHeroTitle {
+        min-width: 0;
+    }
+
+    .psrDashboardTiles {
+        flex-wrap: wrap !important;
+        gap: 1rem;
+        padding: 0.75rem 1rem 0;
+    }
+
+    .psrDashboardTiles > .sapMFlexItem {
+        flex-basis: 100% !important;
     }
 
     .psrDashboardTable {
@@ -529,10 +678,9 @@
 .psrApprovalFlow {
     margin: 0 0 1.5rem;
     padding: 1rem 1.25rem;
-
     background: var(--psr-surface);
     border: 1px solid var(--psr-line);
-    border-left: 0.25rem solid var(--psr-teal);
+    border-left: 0.25rem solid var(--psr-blue);
     border-radius: 0.6rem;
 }
 
@@ -542,16 +690,16 @@
 }
 
 .psrApprovalFlowTitle {
-    color: var(--psr-navy);
+    color: var(--psr-ink);
 }
 
 .psrApprovalFlowSummary {
     margin-top: 0.25rem;
-    color: #5b6f80;
+    color: var(--psr-muted);
 }
 
 .psrApprovalFlowEmpty {
-    color: #5b6f80;
+    color: var(--psr-muted);
     font-style: italic;
 }
 
@@ -564,8 +712,7 @@
     min-width: 12rem;
     flex: 1 1 12rem;
     padding: 0.75rem 1rem;
-
-    background: #f6fbfc;
+    background: #f8f9fc;
     border: 1px solid var(--psr-line);
     border-radius: 0.6rem;
 }
@@ -588,8 +735,8 @@
 }
 
 .psrApprovalStep[data-status="approved"] {
-    background: var(--psr-mint);
-    border-color: #9fd8c8;
+    background: #f0f8f4;
+    border-color: #a7d7bf;
 }
 
 .psrApprovalStep[data-status="rejected"] {
@@ -608,7 +755,7 @@
 
 .psrApprovalStepIcon {
     font-size: 1.1rem;
-    color: #8396a6;
+    color: #8a99a8;
 }
 
 .psrApprovalStep[data-status="approved"] .psrApprovalStepIcon { color: #1e8a5a; }
@@ -620,7 +767,7 @@
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #5b6f80;
+    color: var(--psr-muted);
 }
 
 .psrApprovalStepName {
@@ -631,7 +778,7 @@
 .psrApprovalStepEmail,
 .psrApprovalStepDate {
     font-size: 0.8rem;
-    color: #5b6f80;
+    color: var(--psr-muted);
 }
 
 .psrApprovalStepRemarks {
@@ -664,4 +811,42 @@
         width: 2px;
         height: 1rem;
     }
+}
+
+
+/* =========================================================
+   Read-only review: keep every value fully readable
+   ========================================================= */
+
+.psrFormContainer .sapMInputBaseReadonly .sapMInputBaseContentWrapper {
+    background: #f6f7fb !important;
+    border-style: solid !important;
+}
+
+.psrFormContainer .sapMInputBaseReadonly .sapMInputBaseInner,
+.psrFormContainer .sapMInputBaseReadonly textarea {
+    color: var(--psr-ink) !important;
+    -webkit-text-fill-color: var(--psr-ink);
+    opacity: 1 !important;
+}
+
+/* Read-only radio groups: no greying, selected option highlighted. */
+.psrRadioGroup .sapMRbRo,
+.psrRadioGroup .sapMRbRo .sapMRbBLabel {
+    opacity: 1 !important;
+    color: var(--psr-ink) !important;
+}
+
+.psrRadioGroup .sapMRbRo.sapMRbSel .sapMRbBLabel {
+    font-weight: 700;
+}
+
+
+/* Combo boxes that size to their selected text (e.g. Applicable Taxes). */
+.psrFormContainer .psrAutoWidthCombo.sapMComboBox {
+    max-width: 100%;
+}
+
+.psrFormContainer .psrAutoWidthCombo .sapMInputBaseInner {
+    text-overflow: clip;
 }

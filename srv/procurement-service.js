@@ -320,6 +320,38 @@ async function ensureRequester(req) {
     return await ensureRequester(req)
   })
 
+  this.on('getMyRoles', (req) => ['Admin', 'Requester'].filter((role) => req.user.is(role)))
+
+  // ---------------------------------------------------------------------
+  // Row-level visibility. Admins see every request; everyone else sees the
+  // requests they created plus the ones they are an approver on (so the
+  // approval e-mail link keeps working). Internal reads in this file go
+  // through cds.tx(req) straight to the database and are not affected.
+  // ---------------------------------------------------------------------
+  const visibleRequestIDs = async (req) => {
+    const tx = cds.tx(req)
+    const emails = userEmails(req.user)
+    const [own, assigned] = await Promise.all([
+      tx.run(SELECT.from(ProcurementRequests).columns('ID').where({ createdBy: req.user.id })),
+      tx.run(SELECT.from(Approvers).columns('request_ID')
+        .where`approverID = ${req.user.id} or tolower(approverEmail) in ${emails}`)
+    ])
+    return [...new Set([
+      ...own.map((row) => row.ID),
+      ...assigned.map((row) => row.request_ID)
+    ].filter(Boolean))]
+  }
+
+  const restrictToVisibleRequests = (column) => async (req) => {
+    if (req.user.is('Admin')) return
+    const ids = await visibleRequestIDs(req)
+    if (ids.length) req.query.where({ [column]: { in: ids } })
+    else req.query.where('1 = 0')
+  }
+
+  this.before('READ', ProcurementRequests, restrictToVisibleRequests('ID'))
+  this.before('READ', [Attachments, Approvers, VendorRiskAssessments], restrictToVisibleRequests('request_ID'))
+
 
 
 this.on('getVendors', async (req) => {

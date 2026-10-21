@@ -99,7 +99,7 @@
                 <TextArea id="idRecommendationInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the recommendation" value="{form>/recommendation}"/>
 
                 <Label text="{i18n>currency}" labelFor="idCurrencyComboBox" required="true"/>
-                <ComboBox id="idCurrencyComboBox" placeholder="Search Currency" selectedKey="{form>/currency}">
+                <ComboBox class="psrAutoWidthCombo" change=".onComboBoxFit" id="idCurrencyComboBox" placeholder="Search Currency" selectedKey="{form>/currency}">
                     <items>
                         <core:Item key="LKR" text="LKR"/>
                         <core:Item key="USD" text="USD"/>
@@ -146,6 +146,7 @@
                 <Label text="{i18n>selectedvendorsname}" required="true"/>
 
 <Button
+    id="idAddVendorButton"
     text="Add Vendor"
     icon="sap-icon://add"
     press=".onAddFirstVendor"
@@ -198,7 +199,7 @@
 </VBox>
 
                 <Label text="{i18n>paymentterms}" labelFor="idPaymentTermsComboBox" required="true"/>
-                <ComboBox id="idPaymentTermsComboBox" placeholder="Search Payment Terms" selectedKey="{form>/paymentTerms}" items="{paymentTerms>/}" selectionChange=".onPaymentTermsChange">
+                <ComboBox class="psrAutoWidthCombo" change=".onComboBoxFit" id="idPaymentTermsComboBox" placeholder="Search Payment Terms" selectedKey="{form>/paymentTerms}" items="{paymentTerms>/}" selectionChange=".onPaymentTermsChange">
                     <core:Item key="{paymentTerms>id}" text="{paymentTerms>id}"/>
                 </ComboBox>
 
@@ -209,7 +210,7 @@
                 <TextArea id="idPaymentMilestoneInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the payment milestone/other payment clauses" value="{form>/paymentMilestone}"/>
 
                 <Label text="{i18n>paymentmode}" labelFor="idPaymentModeComboBox" required="true"/>
-                <ComboBox id="idPaymentModeComboBox" placeholder="Select Payment Mode" selectedKey="{form>/paymentMode}">
+                <ComboBox class="psrAutoWidthCombo" change=".onComboBoxFit" id="idPaymentModeComboBox" placeholder="Select Payment Mode" selectedKey="{form>/paymentMode}">
                     <core:Item key="da" text="DA - DOCUMENT AGAINST ACCEPTANCE"/>
                     <core:Item key="dp" text="DP - DOCUMENT AGAINST PAYMENT"/>
                     <core:Item key="lc" text="LC - LETTER OF CREDIT"/>
@@ -249,12 +250,12 @@
                 <TextArea id="idLiquidatedDamagesInput" rows="1" growing="true" growingMaxLines="10" width="100%" placeholder="Enter the liquidated damages" value="{form>/liquidatedDamages}"/>
 
                 <Label text="{i18n>applicabletaxes}" labelFor="idApplicableTaxesInput" required="true"/>
-                <ComboBox id="idTaxCodesComboBox" placeholder="Select Tax Code" selectedKey="{form>/applicableTaxes}" items="{path: '/TaxCodes'}">
+                <ComboBox class="psrAutoWidthCombo" change=".onComboBoxFit" id="idTaxCodesComboBox" placeholder="Select Tax Code" selectedKey="{form>/applicableTaxes}" items="{path: '/TaxCodes'}">
                     <core:Item key="{code}" text="{code} - {name}" />
                 </ComboBox>
 
                 <Label text="{i18n>expensetype}" labelFor="idExpenseTypeInput" required="true"/>
-                <ComboBox id="idExpenseTypesComboBox" placeholder="Select Expense Type" selectedKey="{form>/expenseType}">
+                <ComboBox class="psrAutoWidthCombo" change=".onComboBoxFit" id="idExpenseTypesComboBox" placeholder="Select Expense Type" selectedKey="{form>/expenseType}">
                     <core:Item key="im" text="Capex - IM" />
                     <core:Item key="fm" text="Capex - FM" />
                     <core:Item key="op" text="OPEX" />
@@ -270,17 +271,17 @@
                 </RadioButtonGroup>
 
                 <Label text="{i18n>purchasingorganization}" labelFor="idPurchasingOrganizationInput" required="true"/>
-                <ComboBox id="idPurchasingOrganizationsComboBox" placeholder="Select Purchasing Organization" selectedKey="{form>/purchasingOrganization}" items="{/PurchasingOrganizations}">
+                <ComboBox class="psrAutoWidthCombo" change=".onComboBoxFit" id="idPurchasingOrganizationsComboBox" placeholder="Select Purchasing Organization" selectedKey="{form>/purchasingOrganization}" items="{/PurchasingOrganizations}">
                     <core:Item key="{code}" text="{name}"/>
                 </ComboBox>
 
                 <Label text="{i18n>purchasinggroup}" labelFor="idPurchasingGroupsComboBox" required="true"/>
-                <ComboBox id="idPurchasingGroupsComboBox" selectedKey="{form>/purchasingGroup_ID}" placeholder="Select Purchasing Group" items="{ path: '/PurchasingGroups'}">
+                <ComboBox class="psrAutoWidthCombo" change=".onComboBoxFit" id="idPurchasingGroupsComboBox" selectedKey="{form>/purchasingGroup_ID}" placeholder="Select Purchasing Group" items="{ path: '/PurchasingGroups'}">
                     <core:Item key="{code}" text="{code} - {name}" />
                 </ComboBox>
 
                 <Label text="{i18n>incoterms}" labelFor="idIncoTermsComboBox" required="true"/>
-                <ComboBox id="idIncoTermsComboBox" placeholder="Select Incoterm" selectedKey="{form>/incoterms}" items="{/Incoterms}">
+                <ComboBox class="psrAutoWidthCombo" change=".onComboBoxFit" id="idIncoTermsComboBox" placeholder="Select Incoterm" selectedKey="{form>/incoterms}" items="{/Incoterms}">
                     <core:Item key="{code}" text="{code} {name}" />
                 </ComboBox>
 
@@ -329,7 +330,7 @@
                 <VBox id="idApproversContainerVBox" items="{approvers>/approvers}" visible="{= !${review>/requestId} }">
                     <items>
                         <HBox alignItems="Center" class="sapUiSmallMarginBottom">
-                            <ComboBox placeholder="Search and select approver" selectedKey="{approvers>approverID}" items="{path: 'approverList>/users', templateShareable: false}" selectionChange=".onApproverSelect" width="400px">
+                            <ComboBox class="psrAutoWidthCombo" change=".onComboBoxFit" placeholder="Search and select approver" selectedKey="{approvers>approverID}" items="{path: 'approverList>/users', templateShareable: false}" selectionChange=".onApproverSelect" width="25rem">
                                 <core:Item key="{approverList>id}" text="{approverList>name}" />
                             </ComboBox>
                             <Button icon="sap-icon://sys-add" type="Transparent" visible="{approvers>showAdd}" press=".onAddApprover" class="sapUiTinyMarginBegin" />

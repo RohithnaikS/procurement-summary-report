@@ -7,7 +7,8 @@ sap.ui.define([
     "sap/m/StandardListItem",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "sap/ui/core/format/DateFormat"
+    "sap/ui/core/format/DateFormat",
+    "psr/psr/model/formatter"
 ], function (
     Controller,
     JSONModel,
@@ -17,7 +18,8 @@ sap.ui.define([
     StandardListItem,
     Filter,
     FilterOperator,
-    DateFormat
+    DateFormat,
+    formatter
 ) {
     "use strict";
 
@@ -31,7 +33,7 @@ sap.ui.define([
                 objective: "",
                 type: "",
                 recommendation: "",
-                currency: "",
+                currency: "LKR",
                 valueWithoutTax: "",
                 valueWithTax: "",
                 ticApproval: "",
@@ -175,7 +177,7 @@ this.getView().setModel(oApproverListModel, "approverList");
                 objective: "",
                 type: "",
                 recommendation: "",
-                currency: "",
+                currency: "LKR",
                 valueWithoutTax: "",
                 valueWithTax: "",
                 ticApproval: "",
@@ -237,6 +239,7 @@ this.getView().setModel(oApproverListModel, "approverList");
                 this.byId(sControlId).setSelectedIndex(-1);
             }.bind(this));
 
+            this._fitAllComboBoxWidths();
             this._loadLoggedInUser();
         },
 
@@ -291,7 +294,7 @@ this.getView().setModel(oApproverListModel, "approverList");
                         technicalEvaluation: oRequest.technicalEvaluationSummary || "",
                         commercialEvaluation: oRequest.commercialEvaluationSummary || "",
                         numberOfVendors: oRequest.numberOfVendorsSelected_code || "",
-                        requesterName: oRequest.requesterName || "",
+                        requesterName: formatter.displayName(oRequest.requesterName, oRequest.requesterEmail),
                         requesterId: oRequest.createdBy || "",
                         paymentTerms: oRequest.paymentTerms_code || "",
                         paymentTermsDescription: oRequest.paymentTermDescription || "",
@@ -444,6 +447,9 @@ this.getView().setModel(oApproverListModel, "approverList");
         },
 
 
+        // Read-only review for requesters and approvers. Controls are made
+        // non-editable rather than disabled so every value keeps full
+        // contrast; edit-only buttons are hidden instead of greyed out.
         _setFormReadOnly: function (bReadOnly) {
 
             this.getView().findAggregatedObjects(true, function (oControl) {
@@ -453,8 +459,10 @@ this.getView().setModel(oApproverListModel, "approverList");
             }).forEach(function (oControl) {
                 if (oControl.isA("sap.m.InputBase")) {
                     oControl.setEditable(!bReadOnly);
+                    this._toggleReadOnlyPlaceholder(oControl, bReadOnly);
                 } else if (oControl.isA("sap.m.RadioButtonGroup")) {
-                    oControl.setEnabled(!bReadOnly);
+                    oControl.setEnabled(true);
+                    oControl.setEditable(!bReadOnly);
                 } else if (
                     !oControl.data("keepEnabled") &&
                     oControl.getId() !== this.byId("idCancelButton").getId() &&
@@ -466,7 +474,87 @@ this.getView().setModel(oApproverListModel, "approverList");
             }.bind(this));
 
             this.byId("idSaveSubmitForApprovalButton").setVisible(!bReadOnly);
+            this.byId("idAddVendorButton").setVisible(!bReadOnly);
             this.byId("idCancelButton").setText(bReadOnly ? "Back to Dashboard" : "Cancel");
+
+            if (bReadOnly) {
+                this._showStoredComboBoxValues();
+            }
+        },
+
+
+        // "Enter the ..." hints in an empty read-only field look like data;
+        // show a dash instead and restore the hint when editing again.
+        _toggleReadOnlyPlaceholder: function (oControl, bReadOnly) {
+
+            if (bReadOnly) {
+                if (oControl.data("editPlaceholder") == null) {
+                    oControl.data("editPlaceholder", oControl.getPlaceholder() || "");
+                }
+                oControl.setPlaceholder("—");
+            } else if (oControl.data("editPlaceholder") != null) {
+                oControl.setPlaceholder(oControl.data("editPlaceholder"));
+            }
+        },
+
+
+        // Dropdown texts (tax codes, purchasing groups, payment modes, ...)
+        // can be long, so every combo box grows with its selected text
+        // instead of cutting it off. Capped at the form width by
+        // .psrAutoWidthCombo.
+        _fitComboBoxWidth: function (oComboBox) {
+
+            var sText = oComboBox.getValue() || oComboBox.getPlaceholder() || "";
+            var iWidthRem = Math.max(16, Math.ceil(sText.length * 0.6) + 4);
+
+            oComboBox.setWidth(iWidthRem + "rem");
+        },
+
+
+        // Every combo box in the view, including the dynamic approver rows.
+        _fitAllComboBoxWidths: function () {
+
+            this.getView().findAggregatedObjects(true, function (oControl) {
+                return oControl.isA("sap.m.ComboBox");
+            }).forEach(this._fitComboBoxWidth, this);
+        },
+
+
+        onComboBoxFit: function (oEvent) {
+            this._fitComboBoxWidth(oEvent.getSource());
+        },
+
+
+        // Combo boxes whose list comes from the server (or a fixed list) show
+        // nothing if the stored key isn't among the loaded items. Fall back to
+        // the stored value so reviewers always see what was submitted.
+        _showStoredComboBoxValues: function () {
+
+            [
+                "idCurrencyComboBox",
+                "idPaymentTermsComboBox",
+                "idPaymentModeComboBox",
+                "idTaxCodesComboBox",
+                "idExpenseTypesComboBox",
+                "idPurchasingOrganizationsComboBox",
+                "idPurchasingGroupsComboBox",
+                "idIncoTermsComboBox"
+            ].forEach(function (sControlId) {
+                var oComboBox = this.byId(sControlId);
+                var fnApply = function () {
+                    var sKey = oComboBox.getSelectedKey();
+                    if (sKey && !oComboBox.getSelectedItem()) {
+                        oComboBox.setValue(sKey);
+                    }
+                    this._fitComboBoxWidth(oComboBox);
+                }.bind(this);
+                fnApply();
+                // Server lists may arrive after the request itself.
+                var oItemsBinding = oComboBox.getBinding("items");
+                if (oItemsBinding && oItemsBinding.isA("sap.ui.model.odata.v4.ODataListBinding")) {
+                    oItemsBinding.attachEventOnce("dataReceived", fnApply);
+                }
+            }.bind(this));
         },
 
 
@@ -496,7 +584,7 @@ this.getView().setModel(oApproverListModel, "approverList");
                     var oResult = oOperation.getBoundContext().getObject();
 
                     if (oResult && oResult.name) {
-                        oFormModel.setProperty("/requesterName", oResult.name);
+                        oFormModel.setProperty("/requesterName", formatter.displayName(oResult.name, oResult.email));
                         oFormModel.setProperty("/requesterId", oResult.userID || "");
                     } else {
                         this._loadLoggedInUserFromShell(oFormModel);
@@ -528,7 +616,7 @@ this.getView().setModel(oApproverListModel, "approverList");
                                 oUserInfo.getId() ||
                                 "";
 
-                            oFormModel.setProperty("/requesterName", sName);
+                            oFormModel.setProperty("/requesterName", formatter.displayName(sName, oUserInfo.getEmail()));
                             oFormModel.setProperty("/requesterId", oUserInfo.getId() || "");
                         })
                         .catch(function () {

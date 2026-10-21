@@ -2,7 +2,9 @@ using psr as psr from '../db/schema.cds';
 using { CommonMasterDataService as common } from './external/common-master';
 
 
-@requires: 'authenticated-user'
+// Roles come from xs-security.json (role collections PSR_Admin /
+// PSR_Requester). Users without either role are rejected.
+@requires: ['Admin', 'Requester']
 service ProcurementService {
 
   // "*" keeps every existing field; the two extra lines flatten
@@ -50,6 +52,10 @@ service ProcurementService {
   // It looks up (and, if needed, creates) the Requesters row for whoever
   // is currently logged in.
   function getCurrentUser() returns Requesters;
+
+  // Roles of the logged-in user ('Admin', 'Requester'); the dashboard uses
+  // them to decide which tiles to show.
+  function getMyRoles() returns many String;
 
   function getApprovers() returns many {
     id         : UUID;
